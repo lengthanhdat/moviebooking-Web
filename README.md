@@ -47,7 +47,7 @@ A professional, full-stack Movie Booking System built with **Spring Boot 3** and
 
 1. **Clone repository:**
    ```bash
-   git clone https://github.com/your-username/movie-booking-api.git
+   git clone https://github.com/lengthanhdat/moviebooking-Web.git
    cd movie-booking-api
    ```
 
