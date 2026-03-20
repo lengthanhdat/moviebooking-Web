@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Đăng nhập Admin</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#0b1220;color:#e5e7eb;font-family:Inter,system-ui}
+    .wrap{max-width:420px;margin:80px auto;padding:24px}
+    .card{background:#0b1220;border:1px solid #1f2937;border-radius:16px;padding:24px}
+    h2{margin:0 0 12px 0;font-size:22px}
+    .row{display:flex;gap:8px;margin-bottom:12px}
+    input,button{width:100%;background:#0b1220;color:#e5e7eb;border:1px solid #374151;border-radius:12px;padding:10px 12px}
+    button.primary{background:#2563eb;border-color:#2563eb}
+    .hint{margin-top:8px;color:#9ca3af}
+    .link{color:#60a5fa;cursor:pointer;text-decoration:none}
+    .error{color:#ef4444;margin-top:8px;min-height:20px}
+  </style>
+</head>
+<body data-no-admin-sidebar>
+  <div class="wrap">
+    <div class="card">
+      <h2>Đăng nhập Admin</h2>
+      <div class="row"><input id="email" type="email" placeholder="Email" /></div>
+      <div class="row"><input id="password" type="password" placeholder="Mật khẩu" /></div>
+      <button id="loginBtn" class="primary">Đăng nhập</button>
+      <div id="error" class="error"></div>
+      <div class="hint">Đã đăng nhập? <a class="link" href="/admin/index.html">Vào Dashboard</a></div>
+    </div>
+  </div>
+  <script>
+    const apiBase = window.location.origin + '/api';
+    const next = new URLSearchParams(location.search).get('next') || '/admin/index.html';
+    function el(id){ return document.getElementById(id); }
+    async function readErr(r){
+      try{
+        const ct = (r.headers.get('content-type') || '').toLowerCase();
+        if(ct.includes('application/json')){
+          const j = await r.json();
+          return j.detail || j.message || j.error || j.title || 'Đăng nhập thất bại';
+        }
+        const t = await r.text();
+        return t || 'Đăng nhập thất bại';
+      }catch{
+        return 'Đăng nhập thất bại';
+      }
+    }
+    async function login(){
+      el('error').textContent='';
+      try{
+        const body = { email: el('email').value.trim(), password: el('password').value };
+        const r = await fetch(apiBase + '/auth/login', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(body) });
+        if(!r.ok) throw new Error(await readErr(r));
+        const data = await r.json();
+        localStorage.setItem('admin_token', data.token||'');
+        location.href = next;
+      }catch(e){ el('error').textContent = e.message || 'Lỗi'; }
+    }
+    el('loginBtn').addEventListener('click', login);
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Enter') login(); });
+    (function(){ const t=localStorage.getItem('admin_token')||''; if(t){ location.href = next; } })();
+  </script>
+</body>
+</html>

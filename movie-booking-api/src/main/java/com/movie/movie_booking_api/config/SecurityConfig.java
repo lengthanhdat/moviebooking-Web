@@ -42,7 +42,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/register", "/api/auth/login",
                                 "/api/auth/forgot", "/api/auth/reset", "/api/auth/reset/verify",
-                                "/error", "/api/showtimes", "/api/seats", "/api/seats/seed").permitAll()
+                                "/api/auth/verify", "/api/auth/resend-verification",
+                                "/error", "/api/showtimes", "/api/seats", "/api/seats/seed",
+                                "/ws/**",
+                                "/admin/**", "/api/admin/**",
+                                "/api/movies/public/**", "/api/movies/config/**",
+                                "/site/**", "/", "/index.html", "/favicon.ico",
+                                "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
@@ -73,7 +79,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:*"));
+        config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(false);
@@ -82,5 +88,3 @@ public class SecurityConfig {
         return source;
     }
 }
-
-

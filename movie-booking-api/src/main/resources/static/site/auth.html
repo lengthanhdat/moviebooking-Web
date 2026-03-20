@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Xác thực</title>
+  <link rel="stylesheet" href="/site/common.css" />
+</head>
+<body>
+  <header>
+    <div class="brand"><div class="logo">MB</div> Movie Booking</div>
+  </header>
+  <div class="container full">
+    <div class="hero">
+      <div class="auth-modal">
+        <div class="auth-card">
+          <div class="card-logo">MB</div>
+          <div id="cardTitle" class="card-title">Đăng Nhập Tài Khoản</div>
+          <div id="login">
+            <div class="field light"><span class="icon">@</span><input id="email" type="email" placeholder="Email" /></div>
+            <div class="field light"><input id="password" type="password" placeholder="Mật khẩu" /><button id="togglePw" class="toggle">Hiện</button></div>
+            <button id="doLogin" class="primary cta-full" style="margin-top:12px">Đăng nhập</button>
+            <div class="form-actions simple"><span id="linkForgot" class="link">Quên mật khẩu?</span></div>
+            <div class="divider"></div>
+            <div class="hint-row light">Bạn chưa có tài khoản? <span id="linkToRegister" class="link">Đăng ký</span></div>
+
+          </div>
+          <div id="register" class="hidden">
+            <div class="field light"><input id="regName" type="text" placeholder="Họ và tên" /></div>
+            <div class="field light"><span class="icon">@</span><input id="regEmail" type="email" placeholder="Email" /></div>
+            <div class="field light"><input id="regPassword" type="password" placeholder="Mật khẩu" /><button id="toggleRegPw" class="toggle">Hiện</button></div>
+            <div class="field light"><input id="regConfirm" type="password" placeholder="Xác nhận mật khẩu" /><button id="toggleRegCf" class="toggle">Hiện</button></div>
+            <button id="doRegister" class="primary cta-full" style="margin-top:12px">Đăng ký</button>
+            <div class="hint-row light">Đã có tài khoản? <span id="linkToLogin" class="link">Đăng nhập</span></div>
+            <div id="resendHintRegister" class="hint-row light hidden">Chưa nhận email xác minh? <span id="resendFromRegister" class="link">Gửi lại</span></div>
+          </div>
+          <div id="forgot" class="hidden">
+            <div class="card-title">Quên Mật Khẩu</div>
+            <div class="field light"><span class="icon">@</span><input id="forgotEmail" type="email" placeholder="Email" /></div>
+            <div class="form-actions" style="justify-content:flex-end"><button id="doForgot" class="primary">Gửi yêu cầu</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/site/common.js"></script>
+  <script>
+    const next = new URLSearchParams(location.search).get('next') || '/site/home.html';
+    (function(){ try{ const bg = new URLSearchParams(location.search).get('bg'); if(bg){ const h=document.querySelector('.hero'); if(h){ h.style.backgroundImage = `url(${bg})`; h.classList.add('has-bg'); } } }catch{} })();
+    function setTab(t){
+      document.getElementById('login').classList.toggle('hidden', t!=='login');
+      document.getElementById('register').classList.toggle('hidden', t!=='register');
+      document.getElementById('forgot').classList.toggle('hidden', t!=='forgot');
+      const title = document.getElementById('cardTitle');
+      if(title){
+        if(t==='login') title.textContent = 'Đăng Nhập Tài Khoản';
+        else if(t==='register') title.textContent = 'Đăng Ký Tài Khoản';
+        else if(t==='forgot') title.textContent = 'Quên Mật Khẩu';
+      }
+    }
+    document.getElementById('linkForgot').onclick = ()=>setTab('forgot');
+    document.getElementById('linkToRegister').onclick = ()=>setTab('register');
+    document.getElementById('linkToLogin').onclick = ()=>setTab('login');
+    document.getElementById('doLogin').onclick = async ()=>{ const email=document.getElementById('email').value; const password=document.getElementById('password').value; if(!email||!password){ toast('Nhập email và mật khẩu'); return; } try{ const res=await fetchJson(API.login, { method:'POST', body: JSON.stringify({ email, password }) }); setToken(res.token); setFlash('Đăng nhập thành công, chào mừng bạn đến với Movie Booking'); location.href=next; }catch(e){ toast(e.message); }};
+    document.getElementById('doRegister').onclick = async ()=>{ const name=(document.getElementById('regName').value||'').trim(); const email=document.getElementById('regEmail').value; const password=document.getElementById('regPassword').value; const confirm=document.getElementById('regConfirm').value; if(!name||!email||!password||password!==confirm){ toast('Xác thực đầu vào chưa hợp lệ'); return; } try{ await fetchJson(API.register, { method:'POST', body: JSON.stringify({ email, password, name }) }); document.getElementById('resendHintRegister')?.classList.remove('hidden'); setTab('login'); toast('Đăng ký thành công, vui lòng kiểm tra email để xác minh tài khoản'); }catch(e){ toast(e.message); }};
+    document.getElementById('doForgot').onclick = async ()=>{ const email=document.getElementById('forgotEmail').value; if(!email){ toast('Nhập email'); return; } try{ await fetchJson('/api/auth/forgot', { method:'POST', body: JSON.stringify({ email }) }); toast('Đã gửi yêu cầu qua email'); }catch(e){ toast(e.message); }};
+    document.getElementById('togglePw').onclick = ()=>{ const el=document.getElementById('password'); el.type=el.type==='password'?'text':'password'; };
+    document.getElementById('toggleRegPw').onclick = ()=>{ const el=document.getElementById('regPassword'); el.type=el.type==='password'?'text':'password'; };
+    document.getElementById('toggleRegCf').onclick = ()=>{ const el=document.getElementById('regConfirm'); el.type=el.type==='password'?'text':'password'; };
+    async function resendVerify(email){ const em=(email||'').trim(); if(!em){ toast('Nhập email để gửi lại xác minh'); return; } try{ await fetchJson('/api/auth/resend-verification', { method:'POST', body: JSON.stringify({ email: em }) }); toast('Đã gửi lại email xác minh (nếu tài khoản chưa được xác minh)'); }catch(e){ toast(e.message); } }
+
+    document.getElementById('resendFromRegister').onclick = ()=>{ const em=document.getElementById('regEmail').value; resendVerify(em); };
+    const mode=new URLSearchParams(location.search).get('mode'); if(mode==='register') setTab('register'); else setTab('login'); injectBottomNav();
+  </script>
+</body>
+</html>

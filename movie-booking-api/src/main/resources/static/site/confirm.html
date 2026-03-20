@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vé đã đặt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/site/common.css" />
+  <style>
+    :root{
+      --header-h: 80px;
+      --cf-bg:#020617;
+      --cf-panel: rgba(15, 23, 42, 0.58);
+      --cf-border-soft: rgba(255,255,255,0.10);
+      --cf-border-softer: rgba(255,255,255,0.06);
+      --cf-text-muted: rgba(148,163,184,0.95);
+      --cf-ease:cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+    html, body{min-height:100%}
+    html{
+      background: radial-gradient(900px 520px at 12% 0%, rgba(249,115,22,0.20), transparent 60%),
+                  radial-gradient(900px 520px at 88% 18%, rgba(37,99,235,0.14), transparent 60%),
+                  radial-gradient(800px 520px at 50% 110%, rgba(251,146,60,0.16), transparent 60%),
+                  var(--cf-bg);
+    }
+    body.confirm-vip{
+      background: radial-gradient(900px 520px at 12% 0%, rgba(249,115,22,0.20), transparent 60%),
+                  radial-gradient(900px 520px at 88% 18%, rgba(37,99,235,0.14), transparent 60%),
+                  radial-gradient(800px 520px at 50% 110%, rgba(251,146,60,0.16), transparent 60%),
+                  var(--cf-bg);
+      min-height: 100vh;
+      font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+      overflow-x:hidden;
+      padding-top: var(--header-h);
+    }
+    body.confirm-vip header{
+      height: var(--header-h);
+      background: rgba(2, 6, 23, 0.78);
+      border-bottom: 1px solid var(--cf-border-softer);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    body.confirm-vip .brand{
+      color:#fff;
+      font-weight:800;
+      font-size:20px;
+      letter-spacing:0.2px;
+      font-family:'Playfair Display', serif;
+    }
+    body.confirm-vip .brand .logo{
+      width:34px;height:34px;border-radius:17px;
+      box-shadow: 0 0 18px rgba(249, 115, 22, 0.34);
+    }
+    body.confirm-vip .searchbar{
+      height:44px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--cf-border-soft);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.18);
+    }
+    body.confirm-vip .container{max-width:1280px;padding:28px 22px;}
+    body.confirm-vip .section{margin-top:0;}
+    body.confirm-vip .page-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:18px;
+      margin: 6px 0 16px;
+    }
+    body.confirm-vip .page-title{
+      margin:0;
+      font-family:'Playfair Display', serif;
+      font-size:28px;
+      letter-spacing:0.2px;
+      color:#fff;
+    }
+    body.confirm-vip .steps{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    body.confirm-vip .step{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid var(--cf-border-soft);
+      background: rgba(255,255,255,0.04);
+      color: var(--cf-text-muted);
+      font-size:13px;
+      font-weight:600;
+    }
+    body.confirm-vip .step .dot{
+      width:8px;height:8px;border-radius:4px;
+      background: rgba(148,163,184,0.5);
+      box-shadow: 0 0 0 4px rgba(148,163,184,0.14);
+    }
+    body.confirm-vip .step.active{
+      color:#fff;
+      border-color: rgba(249,115,22,0.55);
+      background: rgba(249,115,22,0.10);
+    }
+    body.confirm-vip .step.active .dot{
+      background: var(--orange);
+      box-shadow: 0 0 0 4px rgba(249,115,22,0.16), 0 0 18px rgba(249,115,22,0.35);
+    }
+    body.confirm-vip .wrap{
+      display:flex;
+      justify-content:center;
+      margin-top: 8px;
+    }
+    body.confirm-vip .ticket{
+      width: 760px;
+      max-width: 100%;
+      border-radius: 26px;
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+      box-shadow: 0 22px 80px rgba(0,0,0,0.62);
+      overflow:hidden;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    body.confirm-vip .ticket::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: radial-gradient(900px 360px at 15% 0%, rgba(249,115,22,0.22), transparent 55%),
+                  radial-gradient(900px 360px at 85% 0%, rgba(37,99,235,0.16), transparent 55%);
+      pointer-events:none;
+    }
+    body.confirm-vip .ticket::after{
+      content:"";
+      position:absolute;
+      left:0;right:0;top:0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, rgba(249,115,22,0.85), transparent);
+      opacity:0.9;
+      pointer-events:none;
+    }
+    body.confirm-vip .notch{
+      position:absolute;
+      top: 60%;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: var(--cf-bg);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 0 2px rgba(255,255,255,0.06);
+      transform: translateY(-50%);
+      z-index:2;
+    }
+    body.confirm-vip .notch.left{left:-9px}
+    body.confirm-vip .notch.right{right:-9px}
+    body.confirm-vip .ticket-inner{
+      position:relative;
+      z-index:1;
+      padding: 18px 18px 16px;
+    }
+    body.confirm-vip .ticket-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    body.confirm-vip .ticket-title{
+      font-weight: 900;
+      color: #fff;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+      line-height: 1.18;
+      font-family:'Playfair Display', serif;
+    }
+    body.confirm-vip .ticket-sub{
+      margin-top: 6px;
+      color: var(--cf-text-muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    body.confirm-vip .meta-badges{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    body.confirm-vip .badge{
+      display:inline-flex;
+      align-items:center;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(2, 6, 23, 0.42);
+      color: rgba(226,232,240,0.92);
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: 0.12px;
+      white-space:nowrap;
+      max-width: 320px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    body.confirm-vip .ticket-code{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:8px;
+      padding-top: 2px;
+    }
+    body.confirm-vip .code-label{
+      color: rgba(148,163,184,0.9);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.18px;
+      text-transform: uppercase;
+    }
+    body.confirm-vip .pill{
+      display:inline-flex;
+      align-items:center;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(249,115,22,0.35);
+      background: rgba(2, 6, 23, 0.55);
+      color: rgba(226,232,240,0.92);
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: 0.14px;
+      white-space:nowrap;
+      max-width: 220px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      box-shadow: 0 0 0 4px rgba(249,115,22,0.10), 0 0 22px rgba(249,115,22,0.14);
+    }
+    body.confirm-vip .ticket-line{display:none}
+    body.confirm-vip .ticket-main{
+      margin-top: 16px;
+      display:grid;
+      grid-template-columns: 1fr 24px 300px;
+      gap: 12px;
+      align-items:stretch;
+    }
+    body.confirm-vip .ticket-left{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    body.confirm-vip .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    body.confirm-vip .kv{
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(2,6,23,0.35);
+      border-radius: 16px;
+      padding: 10px 12px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+    }
+    body.confirm-vip .k{color: rgba(148,163,184,0.9);font-size:12px;font-weight:800;letter-spacing:0.16px}
+    body.confirm-vip .v{color: rgba(226,232,240,0.92);font-size:13px;font-weight:800;letter-spacing:0.12px;overflow-wrap:anywhere}
+    body.confirm-vip .seats{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      justify-content:flex-start;
+    }
+    body.confirm-vip .seat-chip{
+      height: 26px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      color: rgba(226,232,240,0.92);
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: 0.12px;
+    }
+    body.confirm-vip .qr-wrap{margin-top: 0;display:flex;justify-content:center;align-items:flex-start}
+    body.confirm-vip .tear{
+      position:relative;
+      align-self:stretch;
+      width: 24px;
+      border-radius: 999px;
+    }
+    body.confirm-vip .tear::before{
+      content:"";
+      position:absolute;
+      left:50%;
+      top: 16px;
+      bottom: 16px;
+      transform: translateX(-50%);
+      border-left: 1px dashed rgba(148,163,184,0.28);
+      opacity: 0.9;
+    }
+    body.confirm-vip .tear::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 50% 0%, var(--cf-bg) 11px, transparent 12px),
+        radial-gradient(circle at 50% 100%, var(--cf-bg) 11px, transparent 12px);
+      pointer-events:none;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.35));
+    }
+    body.confirm-vip .qr-side{
+      position:relative;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(2,6,23,0.38);
+      border-radius: 18px;
+      padding: 12px 12px 14px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.22);
+      width: 100%;
+    }
+    body.confirm-vip .qr-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:10px;
+    }
+    body.confirm-vip .qr-title{
+      color:#fff;
+      font-weight: 900;
+      letter-spacing:0.16px;
+      font-size: 13px;
+    }
+    body.confirm-vip .qr-sub{
+      color: rgba(148,163,184,0.92);
+      font-size: 12px;
+      font-weight: 700;
+      text-align:right;
+    }
+    body.confirm-vip .qr-card{
+      width: fit-content;
+      border-radius: 20px;
+      background: #ffffff;
+      box-shadow: 0 20px 52px rgba(0,0,0,0.40);
+      border: 1px solid rgba(0,0,0,0.06);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 12px;
+      margin: 10px auto 0;
+    }
+    body.confirm-vip .qr-card #qr{width: clamp(184px, 22vw, 232px);height: clamp(184px, 22vw, 232px);display:flex;align-items:center;justify-content:center}
+    body.confirm-vip .qr-card canvas{background:transparent;border-radius:12px}
+    body.confirm-vip .qr-card img{background:transparent;border-radius:12px}
+    body.confirm-vip .qr-card table{background:transparent;border-radius:12px;border-collapse:collapse}
+    body.confirm-vip .qr-card table td{padding:0}
+    body.confirm-vip .qr-hint{
+      margin-top: 10px;
+      color: rgba(148,163,184,0.9);
+      font-size: 12px;
+      text-align:center;
+    }
+    body.confirm-vip .ticket-foot{
+      margin-top: 14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      color: rgba(148,163,184,0.9);
+      font-size: 12px;
+    }
+    body.confirm-vip .ticket-foot .strong{color: rgba(226,232,240,0.92);font-weight:800}
+    body.confirm-vip .actions{
+      display:flex;
+      justify-content:center;
+      margin-top: 14px;
+    }
+    body.confirm-vip .primary.cta-full{
+      height:46px;
+      border-radius:999px;
+      border-color: rgba(249,115,22,0.55);
+      background: linear-gradient(135deg, var(--orange), var(--orange2));
+      box-shadow: 0 14px 30px rgba(249,115,22,0.22);
+      transition: transform .18s var(--cf-ease), box-shadow .22s var(--cf-ease), filter .2s var(--cf-ease);
+      font-weight:900;
+      letter-spacing:0.2px;
+    }
+    body.confirm-vip .primary.cta-full:hover{transform: translateY(-2px);box-shadow: 0 20px 40px rgba(249,115,22,0.28);filter:brightness(1.02)}
+    @media (max-width: 980px){
+      body.confirm-vip .page-head{align-items:flex-start;flex-direction:column;}
+      body.confirm-vip .steps{justify-content:flex-start;}
+    }
+    @media (max-width: 520px){
+      body.confirm-vip .ticket{border-radius: 18px}
+      body.confirm-vip .ticket-inner{padding: 14px 14px 12px}
+      body.confirm-vip .ticket-title{font-size: 20px}
+      body.confirm-vip .ticket-main{grid-template-columns: 1fr}
+      body.confirm-vip .grid{grid-template-columns: 1fr}
+      body.confirm-vip .tear{display:none}
+      body.confirm-vip .qr-side{padding: 12px}
+    }
+  </style>
+</head>
+<body class="confirm-vip">
+  <header>
+    <div class="brand"><div class="logo">MB</div> Movie Booking</div>
+    <div class="nav">
+      <div class="searchbar">
+        <span class="icon">🔍</span>
+        <input id="search" placeholder="Tìm phim" />
+        <button id="btnSearch" class="primary">Tìm</button>
+      </div>
+      <div id="userArea"></div>
+    </div>
+  </header>
+  <div class="container">
+    <div class="section">
+      <div class="page-head">
+        <h1 class="page-title">Vé đã đặt</h1>
+        <div class="steps">
+          <div class="step"><span class="dot"></span><span>Chọn ghế</span></div>
+          <div class="step"><span class="dot"></span><span>Thanh toán</span></div>
+          <div class="step active"><span class="dot"></span><span>Vé của bạn</span></div>
+        </div>
+      </div>
+      <div class="wrap">
+        <div id="ticket" class="ticket"></div>
+      </div>
+      <div class="actions">
+        <button id="done" class="primary cta-full" style="max-width:420px;width:100%">Hoàn tất</button>
+      </div>
+  </div>
+  </div>
+  <script src="/site/common.js"></script>
+  <script src="/site/vendor/qrcode.min.js"></script>
+  <script>
+    if(!requireAuth()) throw new Error('Unauthorized');
+    const id = new URLSearchParams(location.search).get('id');
+
+    async function ensureQRCodeLib(){ if(typeof QRCode!=="undefined") return; await new Promise((resolve)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'; s.onload=resolve; s.onerror=resolve; document.head.appendChild(s); }); }
+    async function ensureQRCodeCanvasLib(){ if(typeof QRCode!=="undefined" && typeof QRCode.toCanvas==='function') return; await new Promise((resolve)=>{ const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js'; s.onload=resolve; s.onerror=resolve; document.head.appendChild(s); }); }
+
+    async function load(){ const list=await fetchJson(API.myBookings); const b=list.find(x=>String(x.id)===String(id)); if(!b){ document.getElementById('ticket').innerHTML = `<div class="ticket-inner"><div class="ticket-title">Không tìm thấy vé</div><div class="ticket-sub">Vui lòng kiểm tra lại mã đơn hoặc lịch sử đặt vé.</div></div>`; return; } await ensureQRCodeLib(); await renderQR(b); }
+    function weekdayStr(dt){ const w=['CN','T2','T3','T4','T5','T6','T7']; return w[dt.getDay()]||''; }
+    async function renderQR(b){
+      const box=document.getElementById('ticket');
+      const dt=new Date(b.startTime);
+      const hh=String(dt.getHours()).padStart(2,'0');
+      const mm=String(dt.getMinutes()).padStart(2,'0');
+      const dd=String(dt.getDate()).padStart(2,'0');
+      const MM=String(dt.getMonth()+1).padStart(2,'0');
+      const yyyy=dt.getFullYear();
+      const day=weekdayStr(dt);
+      const seatsArr = Array.isArray(b.seats) ? b.seats.map(String) : [];
+      const seatsStr=seatsArr.join(', ');
+      const timeText=`${hh}:${mm} • ${dd}/${MM}/${yyyy}`;
+      const cinema=String(b.cinema||'');
+      const room=String(b.room||'');
+      const totalStr=(new Intl.NumberFormat('vi-VN').format(b.totalPrice||0))+"đ";
+      const topRight = b.code ? String(b.code) : `#${b.id||''}`;
+      const seatsHtml = seatsArr.length ? seatsArr.map(s=>`<span class="seat-chip">${s}</span>`).join('') : `<span class="seat-chip">—</span>`;
+      const sub1 = cinema ? `${cinema}${room?` • Phòng ${room}`:''}` : (room?`Phòng ${room}`:'—');
+      const sub2 = `${day} • ${timeText}`;
+      box.innerHTML = `
+        <div class="ticket-inner">
+          <div class="ticket-top">
+            <div>
+              <div class="ticket-title">${b.movieTitle||''}</div>
+              <div class="ticket-sub">${sub1}<br>${sub2}</div>
+              <div class="meta-badges">
+                <span class="badge">${cinema||'—'}</span>
+                <span class="badge">${room?`Phòng ${room}`:'—'}</span>
+              </div>
+            </div>
+            <div class="ticket-code">
+              <div class="code-label">Mã vé</div>
+              <div class="pill">${topRight}</div>
+            </div>
+          </div>
+          <div class="ticket-main">
+            <div class="ticket-left">
+              <div class="grid">
+                <div class="kv">
+                  <div class="k">Ghế</div>
+                  <div class="v seats">${seatsHtml}</div>
+                </div>
+                <div class="kv">
+                  <div class="k">Tổng tiền</div>
+                  <div class="v">${totalStr}</div>
+                </div>
+                <div class="kv">
+                  <div class="k">Suất chiếu</div>
+                  <div class="v">${sub2}</div>
+                </div>
+                <div class="kv">
+                  <div class="k">Mã đơn</div>
+                  <div class="v">#${b.id||''}</div>
+                </div>
+              </div>
+              <div class="ticket-foot">
+                <div>${cinema ? `Xuất trình vé tại ${cinema}` : 'Xuất trình vé tại quầy'}</div>
+                <div class="strong">${seatsArr.length} vé</div>
+              </div>
+            </div>
+            <div class="tear" aria-hidden="true"></div>
+            <div class="qr-wrap">
+              <div class="qr-side">
+                <div class="qr-head">
+                  <div class="qr-title">CHECK-IN QR</div>
+                  <div class="qr-sub">Giữ màn hình sáng</div>
+                </div>
+                <div class="qr-card"><div id="qr"></div></div>
+                <div class="qr-hint">Quét mã để vào rạp</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      const c=document.getElementById('qr'); c.innerHTML='';
+      const qrSize = (() => {
+        const r = c.getBoundingClientRect();
+        const w = Math.floor(r.width || 0);
+        if(w > 0) return Math.max(160, Math.min(240, w));
+        return 220;
+      })();
+      const qrTextFull=(
+        `Vé xem phim: ${b.movieTitle||''}\n`+
+        `Mã đơn: ${b.id||''}\n`+
+        `Suất: ${timeText}${cinema? ' - '+cinema:''}${room? ' - Phòng '+room:''}\n`+
+        `Ghế: ${seatsStr}\n`+
+        `Tổng tiền: ${totalStr}`
+      );
+      
+      function tryRenderDOM(text){
+        c.innerHTML='';
+        try{
+          new QRCode(c, { text, width: qrSize, height: qrSize, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.L });
+        }catch(e1){
+          const origCtx = window.CanvasRenderingContext2D;
+          try{
+            window.CanvasRenderingContext2D = undefined;
+            c.innerHTML='';
+            new QRCode(c, { text, width: qrSize, height: qrSize, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.L });
+          }catch(e2){
+            c.innerHTML='';
+          }finally{
+            window.CanvasRenderingContext2D = origCtx;
+          }
+        }
+        const img=c.querySelector('img'); const canvas=c.querySelector('canvas'); const table=c.querySelector('table');
+        if(canvas){ canvas.style.display='block'; }
+        if(img){ img.style.display='block'; }
+        if(table){ table.style.display='table'; }
+        return !!(canvas || img || table);
+      }
+      function tryRenderCanvas(text){ try{ c.innerHTML=''; const canvas=document.createElement('canvas'); c.appendChild(canvas); if(typeof QRCode==='undefined' || typeof QRCode.toCanvas!=='function') return false; QRCode.toCanvas(canvas, text, { width: qrSize, margin: 1, color: { dark: '#000000', light: '#ffffff' } }, function(){}); canvas.style.display='block'; return true; }catch(_){ return false; } }
+      const ascii=(s)=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      const qrTextAscii=(
+        `Ve xem phim: ${ascii(b.movieTitle)||''}\n`+
+        `Ma don: ${b.id||''}\n`+
+        `Suat: ${timeText}${cinema? ' - '+ascii(cinema):''}${room? ' - Phong '+ascii(room):''}\n`+
+        `Ghe: ${ascii(seatsStr)}\n`+
+        `Tong tien: ${totalStr}`
+      );
+      if(!tryRenderDOM(qrTextFull)){
+        await ensureQRCodeCanvasLib();
+        if(!tryRenderCanvas(qrTextFull)){
+          if(!tryRenderCanvas(qrTextAscii)){
+            c.innerHTML='';
+            const canvas=document.createElement('canvas');
+            canvas.width = qrSize;
+            canvas.height = qrSize;
+            c.appendChild(canvas);
+            const g = canvas.getContext('2d');
+            if(g){
+              drawFallbackQR(g, qrSize, qrSize, qrTextAscii || 'Movie Booking');
+            }else{
+              toast('Không thể tạo QR');
+            }
+          }
+        }
+      }
+    }
+    document.getElementById('done').onclick=()=>{ location.href='/site/home.html'; };
+    load().catch(e=>toast(e.message)); injectBottomNav();
+
+    function drawFallbackQR(g, w, h, text){ g.fillStyle='#fff'; g.fillRect(0,0,w,h); g.fillStyle='#000'; const size=29; const cell=Math.floor(Math.min(w,h)/size); for(let y=0;y<size;y++){ for(let x=0;x<size;x++){ const v=(x*x + y*y + text.charCodeAt((x+y)%text.length)) % 9; if(v<3){ g.fillRect(x*cell+1,y*cell+1,cell-2,cell-2); } } } }
+  </script>
+</body>
+</html>

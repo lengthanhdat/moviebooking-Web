@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chọn ghế</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/site/common.css" />
+  <style>
+    :root{
+      --bg-deep:#020617;
+      --panel: rgba(15, 23, 42, 0.62);
+      --panel-strong:#0b1220;
+      --border-soft: rgba(255,255,255,0.10);
+      --border-softer: rgba(255,255,255,0.06);
+      --text-main:#f8fafc;
+      --text-muted:#94a3b8;
+      --primary:#f97316;
+      --primary2:#fb923c;
+      --ease:cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+    body.seats-vip{
+      background: radial-gradient(900px 520px at 12% 0%, rgba(249,115,22,0.20), transparent 60%),
+                  radial-gradient(900px 520px at 88% 18%, rgba(37,99,235,0.14), transparent 60%),
+                  radial-gradient(800px 520px at 50% 110%, rgba(251,146,60,0.16), transparent 60%),
+                  var(--bg-deep);
+      font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+      color: var(--text-main);
+      overflow-x:hidden;
+      padding-top:80px;
+    }
+    body.seats-vip header{
+      height:80px;
+      background: rgba(2, 6, 23, 0.78);
+      border-bottom: 1px solid var(--border-softer);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    body.seats-vip .brand{
+      color:#fff;
+      font-weight:800;
+      font-size:20px;
+      letter-spacing:0.2px;
+      font-family:'Playfair Display', serif;
+    }
+    body.seats-vip .brand .logo{
+      width:34px;height:34px;border-radius:17px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary2) 100%);
+      box-shadow: 0 0 18px rgba(249, 115, 22, 0.34);
+    }
+    body.seats-vip .searchbar{
+      height:44px;
+      border-radius:999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border-soft);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.18);
+    }
+    body.seats-vip .container{max-width:1280px;padding:28px 22px;}
+    body.seats-vip .section{margin-top:0;}
+    body.seats-vip .page-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:18px;
+      margin: 6px 0 16px;
+    }
+    body.seats-vip .page-title{
+      margin:0;
+      font-family:'Playfair Display', serif;
+      font-size:28px;
+      letter-spacing:0.2px;
+      color:#fff;
+    }
+    body.seats-vip .steps{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    body.seats-vip .step{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid var(--border-soft);
+      background: rgba(255,255,255,0.04);
+      color: var(--text-muted);
+      font-size:13px;
+      font-weight:600;
+    }
+    body.seats-vip .step .dot{
+      width:8px;height:8px;border-radius:4px;
+      background: rgba(148,163,184,0.5);
+      box-shadow: 0 0 0 4px rgba(148,163,184,0.14);
+    }
+    body.seats-vip .step.active{
+      color:#fff;
+      border-color: rgba(249,115,22,0.55);
+      background: rgba(249,115,22,0.10);
+    }
+    body.seats-vip .step.active .dot{
+      background: var(--primary);
+      box-shadow: 0 0 0 4px rgba(249,115,22,0.16), 0 0 18px rgba(249,115,22,0.35);
+    }
+    body.seats-vip .page-grid{grid-template-columns: 1fr 420px;gap:18px;}
+    body.seats-vip .box{
+      background: rgba(15, 23, 42, 0.58);
+      border: 1px solid var(--border-softer);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.45);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    body.seats-vip #showtimeInfo{
+      font-size: 13px;
+      letter-spacing: 0.25px;
+      margin-top: 4px;
+    }
+    body.seats-vip .legend.top{
+      justify-content: center;
+      gap: 5px;
+      margin: 4px 0 6px;
+      flex-wrap: wrap;
+    }
+    body.seats-vip .legend .chip{
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid var(--border-softer);
+      background: rgba(255,255,255,0.03);
+    }
+    body.seats-vip .legend .chip span{
+      color: rgba(226,232,240,0.92);
+      font-weight: 600;
+      letter-spacing: 0.12px;
+      font-size: 10px;
+    }
+    body.seats-vip .legend .chip .box{
+      width: 10px;
+      height: 10px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+    }
+    body.seats-vip .legend .chip .normal{
+      background: linear-gradient(180deg, rgba(34,197,94,0.18), rgba(16,185,129,0.10));
+      border-color: rgba(34,197,94,0.35);
+    }
+    body.seats-vip .legend .chip .vip{
+      background: linear-gradient(180deg, rgba(234,179,8,0.18), rgba(249,115,22,0.10));
+      border-color: rgba(234,179,8,0.50);
+    }
+    body.seats-vip .legend .chip .selected{
+      background: linear-gradient(135deg, rgba(37,99,235,0.90), rgba(59,130,246,0.75));
+      border-color: rgba(147,197,253,0.85);
+      box-shadow: 0 10px 22px rgba(37,99,235,0.18), 0 0 0 2px rgba(59,130,246,0.10);
+    }
+    body.seats-vip .legend .chip .held{
+      background: linear-gradient(180deg, rgba(168,85,247,0.18), rgba(139,92,246,0.10));
+      border-color: rgba(168,85,247,0.55);
+    }
+    body.seats-vip .legend .chip .booked{
+      background: linear-gradient(180deg, rgba(239,68,68,0.18), rgba(239,68,68,0.10));
+      border-color: rgba(239,68,68,0.55);
+      box-shadow: none;
+    }
+
+    body.seats-vip .vip-confirm{
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 18px;
+    }
+    body.seats-vip .vip-confirm.show{display:flex;}
+    body.seats-vip .vip-confirm .dialog{
+      width: 420px;
+      max-width: 100%;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(15, 23, 42, 0.78);
+      box-shadow: 0 28px 80px rgba(0,0,0,0.55);
+      padding: 16px;
+    }
+    body.seats-vip .vip-confirm .title{
+      font-family:'Playfair Display', serif;
+      font-size: 18px;
+      color: #fff;
+      margin: 2px 0 6px;
+    }
+    body.seats-vip .vip-confirm .desc{
+      color: rgba(148,163,184,0.95);
+      font-size: 13px;
+      line-height: 1.5;
+      margin: 0 0 14px;
+    }
+    body.seats-vip .vip-confirm .actions{
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    body.seats-vip .vip-confirm .btn{
+      height: 40px;
+      border-radius: 999px;
+      padding: 0 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: rgba(226,232,240,0.92);
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .16s var(--ease), box-shadow .18s var(--ease), border-color .18s var(--ease);
+    }
+    body.seats-vip .vip-confirm .btn:hover{transform: translateY(-1px);border-color: rgba(255,255,255,0.22);}
+    body.seats-vip .vip-confirm .btn.primary{
+      border-color: rgba(249,115,22,0.55);
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      box-shadow: 0 12px 26px rgba(249,115,22,0.22);
+      color: #fff;
+    }
+    body.seats-vip .vip-confirm .btn.primary:hover{box-shadow: 0 16px 34px rgba(249,115,22,0.26);}
+    body.seats-vip .screen{
+      height:auto;
+      border:none;
+      border-top: 3px solid rgba(255,255,255,0.38);
+      color: rgba(226,232,240,0.92);
+      padding-top: 10px;
+      margin: 12px 0 14px;
+      letter-spacing: 3px;
+      font-weight: 700;
+      text-transform: uppercase;
+      position: relative;
+    }
+    body.seats-vip .screen::after{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:-3px;
+      transform:translateX(-50%);
+      width: 62%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, rgba(249,115,22,0.75), transparent);
+      box-shadow: 0 0 30px rgba(249,115,22,0.35);
+    }
+    body.seats-vip .seats{
+      width:100%;
+      gap: 10px;
+      padding: 12px 0 4px;
+    }
+    body.seats-vip .row{
+      gap: 10px;
+      margin: 0;
+      justify-content:center;
+    }
+    body.seats-vip .row > .muted{opacity:0.9}
+    body.seats-vip .seat{
+      width:40px;height:40px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: rgba(248,250,252,0.92);
+      transition: transform .18s var(--ease), box-shadow .22s var(--ease), border-color .2s var(--ease), background .2s var(--ease);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.26);
+      user-select:none;
+    }
+    body.seats-vip .seat:hover{
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,0.22);
+      box-shadow: 0 16px 32px rgba(0,0,0,0.35);
+    }
+    body.seats-vip .seat.normal{
+      background: linear-gradient(180deg, rgba(34,197,94,0.18), rgba(16,185,129,0.10));
+      border-color: rgba(34,197,94,0.35);
+    }
+    body.seats-vip .seat.vip{
+      background: linear-gradient(180deg, rgba(234,179,8,0.18), rgba(249,115,22,0.10));
+      border-color: rgba(234,179,8,0.50);
+      color: rgba(255,237,213,0.98);
+    }
+    body.seats-vip .seat.held{
+      background: linear-gradient(180deg, rgba(168,85,247,0.20), rgba(139,92,246,0.12));
+      border-color: rgba(168,85,247,0.60);
+      cursor:not-allowed;
+    }
+    body.seats-vip .seat.booked{
+      background: linear-gradient(180deg, rgba(239,68,68,0.18), rgba(239,68,68,0.10));
+      border-color: rgba(239,68,68,0.55);
+      cursor:not-allowed;
+      box-shadow:none;
+      opacity:0.9;
+    }
+    body.seats-vip .seat.selected{
+      background: linear-gradient(135deg, rgba(37,99,235,0.90), rgba(59,130,246,0.75));
+      border-color: rgba(147,197,253,0.85);
+      box-shadow: 0 16px 34px rgba(37,99,235,0.35), 0 0 0 5px rgba(59,130,246,0.18);
+      color:#fff;
+    }
+    body.seats-vip .pill{
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.10);
+    }
+    body.seats-vip .pill.active{
+      border-color: rgba(249,115,22,0.65);
+      color: rgba(255,237,213,0.98);
+      box-shadow: 0 10px 24px rgba(249,115,22,0.18);
+    }
+    body.seats-vip #quote .title{font-size:16px;font-weight:800;color:#fff}
+    body.seats-vip .divider.dashed{border-top: 1px dashed rgba(255,255,255,0.14);}
+    body.seats-vip button.primary{
+      height:46px;
+      border-radius: 999px;
+      border-color: rgba(249,115,22,0.55);
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      box-shadow: 0 14px 30px rgba(249,115,22,0.22);
+      transition: transform .18s var(--ease), box-shadow .22s var(--ease);
+    }
+    body.seats-vip button.primary:hover{transform: translateY(-2px);box-shadow: 0 20px 40px rgba(249,115,22,0.28);}
+    body.seats-vip .back-link{
+      height: 46px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: rgba(226,232,240,0.92);
+    }
+    body.seats-vip .back-link:hover{border-color: rgba(255,255,255,0.22);color:#fff}
+    @media (max-width: 980px){
+      body.seats-vip .page-head{align-items:flex-start;flex-direction:column;}
+      body.seats-vip .steps{justify-content:flex-start;}
+      body.seats-vip .page-grid{grid-template-columns: 1fr;}
+    }
+    @media (max-width: 520px){
+      body.seats-vip .seat{width:34px;height:34px;border-radius:10px;font-size:11px}
+      body.seats-vip .row{gap:8px}
+    }
+  </style>
+</head>
+<body class="seats-vip">
+  <header>
+    <div class="brand"><div class="logo">MB</div> Movie Booking</div>
+    <div class="nav">
+      <div class="searchbar">
+        <span class="icon">🔍</span>
+        <input id="search" placeholder="Tìm phim" />
+        <button id="btnSearch" class="primary">Tìm</button>
+      </div>
+      <div id="userArea"></div>
+    </div>
+  </header>
+  <div class="container">
+    <div class="section">
+      <div class="page-head">
+        <h1 class="page-title">Chọn ghế</h1>
+        <div class="steps">
+          <div class="step active"><span class="dot"></span><span>Chọn ghế</span></div>
+          <div class="step"><span class="dot"></span><span>Thanh toán</span></div>
+          <div class="step"><span class="dot"></span><span>Vé của bạn</span></div>
+        </div>
+      </div>
+      <div class="page-grid">
+        <div class="box">
+          <div id="showtimeInfo" class="muted center"></div>
+          <div id="metrics" class="muted center" style="margin:6px 0"></div>
+          <div class="legend top" style="margin:6px 0 4px">
+            <div class="chip"><div class="box normal"></div><span>Thường</span></div>
+            <div class="chip"><div class="box vip"></div><span>VIP</span></div>
+            <div class="chip"><div class="box selected"></div><span>Đã chọn</span></div>
+            <div class="chip"><div class="box held"></div><span>Đang giữ</span></div>
+            <div class="chip"><div class="box booked"></div><span>Đã đặt</span></div>
+          </div>
+          <div class="screen">MÀN HÌNH</div>
+          <div id="seats" class="seats"></div>
+        </div>
+        <div class="box">
+          <div class="muted">Thông Tin</div>
+          <div id="quote" style="margin-top:8px"></div>
+          <div class="divider dashed"></div>
+          <div class="actions" style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+            <button id="back" class="back-link">Quay lại</button>
+            <button id="next" class="primary cta-full" style="min-width:200px">Tiếp tục</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="vipConfirm" class="vip-confirm" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="dialog" role="document">
+      <div class="title" id="vipConfirmTitle">Xác nhận ghế VIP</div>
+      <p class="desc" id="vipConfirmDesc"></p>
+      <div class="actions">
+        <button type="button" class="btn" id="vipConfirmCancel">Huỷ</button>
+        <button type="button" class="btn primary" id="vipConfirmOk">Chọn ghế</button>
+      </div>
+    </div>
+  </div>
+  <script src="/site/common.js"></script>
+  <script>
+    const __authed = requireAuth();
+    const { showtimeId, movieId } = qs();
+    const state = { seatCodes: [], seats: [], current: null, movie: null };
+    let seatElByCode = new Map();
+    let seatWs = null;
+    let seatWsHealthy = false;
+    const vipConfirm = document.getElementById('vipConfirm');
+    const vipConfirmTitle = document.getElementById('vipConfirmTitle');
+    const vipConfirmDesc = document.getElementById('vipConfirmDesc');
+    const vipConfirmCancel = document.getElementById('vipConfirmCancel');
+    const vipConfirmOk = document.getElementById('vipConfirmOk');
+    let vipConfirmResolve = null;
+    let vipConfirmLastActive = null;
+    function showVipConfirm(seat){
+      vipConfirmLastActive = document.activeElement;
+      vipConfirmTitle.textContent = `Xác nhận ghế VIP ${seat.code}`;
+      vipConfirmDesc.textContent = `Ghế VIP có giá cao hơn. Bạn có muốn chọn ghế ${seat.code} không?`;
+      vipConfirm.classList.add('show');
+      vipConfirm.setAttribute('aria-hidden', 'false');
+      vipConfirmOk.focus();
+      return new Promise(resolve => { vipConfirmResolve = resolve; });
+    }
+    function hideVipConfirm(ok){
+      vipConfirm.classList.remove('show');
+      vipConfirm.setAttribute('aria-hidden', 'true');
+      const resolve = vipConfirmResolve;
+      vipConfirmResolve = null;
+      if(vipConfirmLastActive && vipConfirmLastActive.focus) vipConfirmLastActive.focus();
+      vipConfirmLastActive = null;
+      if(resolve) resolve(ok);
+    }
+    vipConfirm.addEventListener('click', e => { if(e.target === vipConfirm) hideVipConfirm(false); });
+    vipConfirm.querySelector('.dialog').addEventListener('click', e => e.stopPropagation());
+    vipConfirmCancel.onclick = () => hideVipConfirm(false);
+    vipConfirmOk.onclick = () => hideVipConfirm(true);
+    document.addEventListener('keydown', e => { if(e.key === 'Escape' && vipConfirm.classList.contains('show')) hideVipConfirm(false); });
+    function connectSeatWs(){
+      try{ if(seatWs) seatWs.close(); }catch{}
+      seatWsHealthy = false;
+      try{
+        const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+        const url = `${proto}://${location.host}/ws/seats?showtimeId=${encodeURIComponent(showtimeId)}`;
+        seatWs = new WebSocket(url);
+        seatWs.onopen = ()=>{ seatWsHealthy = true; };
+        seatWs.onclose = ()=>{ seatWsHealthy = false; };
+        seatWs.onerror = ()=>{ seatWsHealthy = false; };
+        seatWs.onmessage = (ev)=>{
+          try{
+            const msg = JSON.parse(ev.data || '{}');
+            if(String(msg.showtimeId) !== String(showtimeId)) return;
+            const status = String(msg.status || '');
+            const codes = Array.isArray(msg.seats) ? msg.seats.map(String) : [];
+            const heldUntil = msg.heldUntil || null;
+            applySeatRealtime(status, codes, heldUntil);
+          }catch{}
+        };
+      }catch{}
+    }
+    function applySeatRealtime(status, codes, heldUntil){
+      if(!codes.length) return;
+      const selectedBefore = new Set(state.seatCodes);
+      const changedCodes = [];
+      for(const code of codes){
+        const seat = state.seats.find(x => String(x.code) === String(code));
+        if(!seat) continue;
+        seat.status = status;
+        seat.isBooked = status === 'BOOKED';
+        seat.isHeld = status === 'HELD';
+        seat.heldUntil = status === 'HELD' ? heldUntil : null;
+        const el = seatElByCode.get(String(code));
+        if(el){
+          el.classList.toggle('booked', status === 'BOOKED');
+          el.classList.toggle('held', status === 'HELD');
+        }
+        changedCodes.push(String(code));
+      }
+      if(!changedCodes.length) return;
+      const toRemove = changedCodes.filter(c => selectedBefore.has(c) && state.seats.find(x => String(x.code) === c)?.status === 'BOOKED');
+      if(toRemove.length){
+        state.seatCodes = state.seatCodes.filter(c => !toRemove.includes(String(c)));
+        updateSelectedUI();
+        quote();
+      }
+      updateMetrics();
+    }
+    async function load(){
+      const seats = await fetchJson(API.seats(showtimeId));
+      state.seats = seats;
+      renderSeats(seats);
+      connectSeatWs();
+      await Promise.all([loadShowtimes(), loadMovie()]).catch(()=>{});
+      updateMetrics();
+      quote();
+      if (window.__seatTimer) clearInterval(window.__seatTimer);
+      window.__seatTimer = setInterval(async ()=>{
+        if(seatWsHealthy) return;
+        try{
+          const s = await fetchJson(API.seats(showtimeId));
+          state.seats = s;
+          renderSeats(s);
+          updateSelectedUI();
+          updateMetrics();
+        }catch(e){}
+      }, 5000);
+    }
+    async function loadShowtimes(){ if(!movieId) return; try{ const list=await fetchJson(API.showtimes(movieId)); const box=document.querySelector('.section'); const wrap=document.createElement('div'); wrap.className='box'; const title=document.createElement('div'); title.className='muted'; title.textContent='Đổi suất chiếu'; wrap.appendChild(title);
+      const groups = {}; list.forEach(st=>{ const c=st.cinema||'Khác'; (groups[c]=groups[c]||[]).push(st); });
+      Object.keys(groups).sort().forEach(c=>{
+        const g=document.createElement('div'); g.style.marginTop='12px';
+        const t=document.createElement('div'); t.className='muted'; t.style.fontSize='0.9em'; t.style.marginBottom='6px'; t.textContent=c; g.appendChild(t);
+        const bar=document.createElement('div'); bar.className='flex';
+        groups[c].sort((a,b)=> { const da=parseLocalDateTime(a.startTime)||new Date(a.startTime); const db=parseLocalDateTime(b.startTime)||new Date(b.startTime); return da-db; });
+        groups[c].forEach(async st=>{
+          const chip=document.createElement('div'); chip.className='pill'+(String(st.id)===String(showtimeId)?' active':''); chip.textContent=formatDisplay(st.startTime);
+          chip.onclick=()=>{ location.href=`/site/seats.html?showtimeId=${st.id}&movieId=${movieId}`; };
+          bar.appendChild(chip);
+          if(String(st.id)===String(showtimeId)) { state.current=st; try{ const det=await fetchJson(`/api/showtimes/${st.id}`); if(det&&typeof det.disabled!=='undefined'){ state.current.disabled = det.disabled; } }catch(e){} }
+        });
+        g.appendChild(bar); wrap.appendChild(g);
+      });
+      wrap.style.marginBottom='14px'; box.insertBefore(wrap, box.querySelector('.page-grid'));
+      const info=document.getElementById('showtimeInfo'); if(info && state.current){ const dt=parseLocalDateTime(state.current.startTime)||new Date(state.current.startTime); const dd=String(dt.getDate()).padStart(2,'0'); const MM=String(dt.getMonth()+1).padStart(2,'0'); const yyyy=dt.getFullYear(); const hh=String(dt.getHours()).padStart(2,'0'); const mm=String(dt.getMinutes()).padStart(2,'0'); info.textContent = `${hh}:${mm} ${dd}/${MM}/${yyyy} • ${state.current.cinema||''}`; }
+      }catch{} }
+    async function loadMovie(){ if(!movieId) return; let m=null;
+      try{ const internalId = Number(movieId); if(Number.isFinite(internalId)){
+        try{ const md = await fetchJson(API.movieDetail(internalId)); const p = md.posterUrl || (md.poster_path?(`/api/movies/public/img?path=${encodeURIComponent(md.poster_path)}&size=w500`):''); m = { id: md.id||internalId, title: md.title||md.titleVi||md.titleEn||'', posterUrl: p };
+        }catch{}
+      }
+      }catch{}
+      if(!m){
+        try{ const all=await fetchJson(API.moviesAll); const mm=Array.isArray(all)? all.find(x=>String(x.id)===String(movieId)||String(x.tmdbId)===String(movieId)) : null; if(mm) m={ id:mm.id, title:mm.title||mm.titleVi||mm.titleEn||'', posterUrl:mm.posterUrl||'' }; }catch{}
+      }
+      if(!m){
+        try{ const tmdb=Number(movieId); if(Number.isFinite(tmdb)){ const pd=await fetchJson(API.publicDetail(tmdb)); const p=pd.poster_path?(`/api/movies/public/img?path=${encodeURIComponent(pd.poster_path)}&size=w500`):''; m={ id: tmdb, title: pd.title||'', posterUrl:p }; } }catch{}
+      }
+      state.movie=m;
+    }
+    function renderSeats(seats){
+      const byRow={};
+      seats.forEach(s=>{ (byRow[s.row]=byRow[s.row]||[]).push(s); });
+      Object.keys(byRow).forEach(r=>byRow[r].sort((a,b)=>a.number-b.number));
+      const root=document.getElementById('seats');
+      root.innerHTML='';
+      seatElByCode = new Map();
+      Object.keys(byRow).sort().forEach(row=>{
+        const line=document.createElement('div'); line.className='row';
+        const l=document.createElement('div'); l.className='muted'; l.style.width='20px'; l.textContent=row; line.appendChild(l);
+        byRow[row].forEach(s=>{
+          const held = s.isHeld || (s.status==='HELD' && s.heldUntil);
+          const base = s.type==='VIP'?' seat vip':' seat normal';
+          const btn=document.createElement('div');
+          btn.dataset.seatCode = s.code;
+          seatElByCode.set(String(s.code), btn);
+          btn.className = base + (s.status==='BOOKED'?' booked':(held?' held':''));
+          btn.textContent = s.code;
+          btn.onclick = () => toggleSeat(s);
+          line.appendChild(btn);
+        });
+        const rlabel=document.createElement('div'); rlabel.className='muted'; rlabel.style.width='20px'; rlabel.textContent=row; line.appendChild(rlabel);
+        root.appendChild(line);
+      });
+    }
+    async function toggleSeat(s){
+      const held = s.isHeld || (s.status==='HELD' && s.heldUntil);
+      if(s.status==='BOOKED' || held) return;
+      const i = state.seatCodes.indexOf(s.code);
+      const isSelected = i >= 0;
+      if(s.type==='VIP' && !isSelected){
+        const ok = await showVipConfirm(s);
+        if(!ok) return;
+      }
+      if(isSelected) state.seatCodes.splice(i,1); else state.seatCodes.push(s.code);
+      updateSelectedUI();
+      quote();
+    }
+    function updateSelectedUI(){
+      const codes=new Set(state.seatCodes.map(String));
+      seatElByCode.forEach((el, code)=>{ el.classList.toggle('selected', codes.has(String(code))); });
+    }
+    function updateMetrics(){ const free = state.seats.filter(s=>{ const held = s.isHeld || (s.status==='HELD' && s.heldUntil); return s.status!=='BOOKED' && !held; }).length; const chosen = state.seatCodes.length; const m=document.getElementById('metrics'); if(m) m.textContent = `Còn trống: ${free} • Đã chọn: ${chosen}`; }
+    async function quote(){ const el=document.getElementById('quote'); const seatsSel=state.seatCodes.slice(); let summary=''; if(state.movie){ const dt = state.current ? new Date(state.current.startTime) : null; const weekdays = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy']; const wd = dt ? weekdays[dt.getDay()] : ''; const timeStr = dt ? `${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')} - ${wd}, ${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}` : ''; summary += `<div style=\"display:flex;gap:12px;align-items:center\">${state.movie.posterUrl?`<img src=\"${state.movie.posterUrl}\" style=\"width:80px;height:120px;border-radius:10px;object-fit:cover;border:1px solid var(--border)\"/>`:''}<div><div class=\"title\">${state.movie.title||''}</div><div class=\"muted\">2D Lồng Tiếng -</div>${state.current?`<div class=\"muted\">${state.current.cinema||''}${state.current.room?(' - '+state.current.room):''}</div><div class=\"muted\">Suất: ${timeStr}</div>`:''}</div></div><div class=\"divider dashed\"></div>`; }
+      if(seatsSel.length===0){ el.innerHTML = summary; return; }
+      try{ const data=await fetchJson(API.quote, { method:'POST', body: JSON.stringify({ showtimeId: Number(showtimeId), seats: seatsSel }) }); const seatsStr = seatsSel.join(', '); const currency = (data.currency==='VND'?'đ':data.currency); el.innerHTML = summary + `<div style=\"display:flex;justify-content:space-between\"><span>${seatsSel.length}x Ghế đơn</span><span>${new Intl.NumberFormat('vi-VN').format(data.totalPrice)} ${currency}</span></div><div class=\"muted\" style=\"margin-top:4px\">Ghế: ${seatsStr}</div><div class=\"divider dashed\"></div><div style=\"display:flex;justify-content:space-between\"><span>Tổng cộng</span><span style=\"color:var(--orange2);font-weight:700\">${new Intl.NumberFormat('vi-VN').format(data.totalPrice)} ${currency}</span></div>`; }catch(e){ el.textContent=e.message; }
+    }
+    document.getElementById('back').onclick = () => { const mid = movieId || (state.movie && state.movie.id); if(mid) location.href = `/site/detail.html?movieId=${mid}`; else history.back(); };
+    document.getElementById('next').onclick = async () => {
+      if(state.seatCodes.length===0){ toast('Hãy chọn ghế của bạn !.'); return; }
+      const cur = state.current;
+      if(cur){
+        const now = new Date();
+        const start = new Date(cur.startTime);
+        const mins = Math.floor((start - now)/60000);
+        if(cur.disabled || mins < 10){ toast(cur.disabled ? 'Suất chiếu đã bị tắt' : 'Suất chiếu sắp diễn ra (<10 phút), không thể thanh toán'); return; }
+      }
+      const nextBtn = document.getElementById('next');
+      const prevText = nextBtn ? nextBtn.textContent : '';
+      if(nextBtn){ nextBtn.disabled = true; nextBtn.textContent = 'Đang giữ ghế...'; }
+      try{
+        const seatsSel = state.seatCodes.slice();
+        const hold = await fetchJson(API.seatingsHold, { method:'POST', body: JSON.stringify({ showtimeId: Number(showtimeId), seats: seatsSel, ttlSeconds: 60 }) });
+        const selection = { showtimeId, seats: seatsSel, movie: state.movie, current: state.current, holdId: hold.holdId, holdExpiresAt: hold.expiresAt };
+        try{ sessionStorage.setItem('selection', JSON.stringify(selection)); }catch{}
+        try{ localStorage.setItem(`selection:${showtimeId}`, JSON.stringify(selection)); }catch{}
+        try{ localStorage.setItem('selection_latest', JSON.stringify(selection)); }catch{}
+        location.href = `/site/payment.html?showtimeId=${showtimeId}`;
+      }catch(e){
+        const msg = /SEAT_ALREADY_HELD/.test(e.message) ? 'Có ghế đang được giữ, hãy chọn ghế khác' :
+                    /SEAT_ALREADY_BOOKED/.test(e.message) ? 'Có ghế đã được đặt, hãy chọn ghế khác' : e.message;
+        toast(msg);
+        if(nextBtn){ nextBtn.disabled = false; nextBtn.textContent = prevText || 'Tiếp tục'; }
+        try{ const s = await fetchJson(API.seats(showtimeId)); state.seats = s; renderSeats(s); updateSelectedUI(); updateMetrics(); }catch{}
+      }
+    };
+    if(__authed){ load().catch(e=>toast(e.message)); }
+    injectBottomNav();
+  </script>
+</body>
+</html>

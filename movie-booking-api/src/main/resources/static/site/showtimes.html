@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Suất chiếu</title>
+  <link rel="stylesheet" href="/site/common.css" />
+</head>
+<body>
+  <header>
+    <div class="brand"><div class="logo">MB</div> Movie Booking</div>
+    <div class="nav">
+      <div class="searchbar">
+        <span class="icon">🔍</span>
+        <input id="search" placeholder="Tìm phim" />
+        <button id="btnSearch" class="primary">Tìm</button>
+      </div>
+      <div id="userArea"></div>
+    </div>
+  </header>
+  <div class="container">
+    <div class="section">
+      <h2 id="title">Suất chiếu</h2>
+      <div id="list" class="flex"></div>
+    </div>
+  </div>
+  <script src="/site/common.js"></script>
+  <script>
+    const { movieId } = qs();
+    async function load(){
+      try{ const all=await fetchJson(API.moviesAll); const m=all.find(x=>String(x.id)===String(movieId)||String(x.tmdbId)===String(movieId)); if(m){ document.getElementById('title').textContent = `Suất chiếu • ${m.title||m.titleVi||m.titleEn}`; } }catch(e){}
+      const list = await fetchJson(API.showtimes(movieId));
+      const groups = {};
+      list.forEach(st => { const k = st.cinema || 'Khác'; (groups[k]=groups[k]||[]).push(st); });
+      const root = document.getElementById('list'); root.innerHTML='';
+      Object.keys(groups).forEach(c => {
+        const h = document.createElement('div'); h.className='muted'; h.textContent=c; root.appendChild(h);
+        groups[c].sort((a,b)=> {
+          const da = parseLocalDateTime(a.startTime) || new Date(a.startTime);
+          const db = parseLocalDateTime(b.startTime) || new Date(b.startTime);
+          return da - db;
+        });
+        groups[c].forEach(st => { const p=document.createElement('div'); p.className='pill'; p.textContent = `${formatDisplay(st.startTime)}`; p.onclick=()=>{ const dest=`/site/seats.html?showtimeId=${st.id}&movieId=${movieId}`; if(!requireAuth(dest)) return; location.href=dest; }; root.appendChild(p); });
+      });
+    }
+    load().catch(e=>toast(e.message)); injectBottomNav();
+  </script>
+</body>
+</html>

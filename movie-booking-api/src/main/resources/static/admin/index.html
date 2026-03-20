@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-body: #0b1220;
+      --bg-panel: #111827;
+      --bg-card: #1f2937;
+      --border: #374151;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      margin-left: 240px;
+      background: var(--bg-body);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1024px) {
+      body { margin-left: 0; }
+    }
+
+    .layout-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .page-header {
+      margin-bottom: 24px;
+    }
+
+    .page-title h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+    }
+    
+    .page-title p {
+      margin: 4px 0 0;
+      color: var(--text-muted);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .stat-trend {
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .text-green { color: var(--success); }
+    .text-blue { color: var(--primary); }
+    .text-red { color: var(--danger); }
+
+    /* Main Content Grid */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 1200px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      margin: 0;
+    }
+
+    /* Controls */
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    input, select {
+      background: var(--bg-body);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      outline: none;
+    }
+    
+    input:focus, select:focus {
+      border-color: var(--primary);
+    }
+
+    button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: var(--primary-hover);
+    }
+
+    button.secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    
+    button.secondary:hover {
+      border-color: var(--text-muted);
+      color: #fff;
+    }
+
+    /* Top List */
+    .top-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .top-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .top-item:last-child { border-bottom: none; }
+
+    .top-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .rank-badge {
+      width: 24px;
+      height: 24px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .top-item:nth-child(1) .rank-badge { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+    .top-item:nth-child(2) .rank-badge { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+    .top-item:nth-child(3) .rank-badge { background: rgba(180, 83, 9, 0.2); color: #b45309; }
+
+    .top-title {
+      font-weight: 500;
+      color: #fff;
+    }
+
+    .top-value {
+      font-weight: 600;
+      color: var(--success);
+    }
+
+    /* Login Overlay */
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-body);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .login-box {
+      background: var(--bg-panel);
+      padding: 40px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<!-- Login Section -->
+<div id="loginPanel" class="login-overlay hidden">
+  <div class="login-box">
+    <h2 style="margin-top:0; text-align:center">Admin Dashboard</h2>
+    <div style="margin-bottom:16px">
+      <label style="display:block; margin-bottom:8px; font-size:13px; color:var(--text-muted)">Email</label>
+      <input id="email" type="email" style="width:100%" value="admin@example.com" />
+    </div>
+    <div style="margin-bottom:24px">
+      <label style="display:block; margin-bottom:8px; font-size:13px; color:var(--text-muted)">Password</label>
+      <input id="password" type="password" style="width:100%" value="password123" />
+    </div>
+    <button id="loginBtn" style="width:100%; padding:12px">Đăng nhập</button>
+    <div id="loginError" style="color:var(--danger); margin-top:16px; text-align:center; font-size:13px"></div>
+  </div>
+</div>
+
+<!-- Main Dashboard -->
+<div id="dashboardPanel" class="layout-container">
+  <header class="page-header">
+    <div class="page-title">
+      <h1>Tổng quan</h1>
+      <p>Số liệu thống kê và hiệu suất kinh doanh</p>
+    </div>
+  </header>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Doanh thu hôm nay</div>
+      <div class="stat-value text-red" id="todayRevenue">0 VND</div>
+      <div class="stat-trend">
+        <span style="color:var(--text-muted)">Cập nhật realtime</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Doanh thu tháng này</div>
+      <div class="stat-value text-green" id="monthRevenue">0 VND</div>
+      <div class="stat-trend">
+        <span>Tổng hợp toàn bộ</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Vé bán hôm nay</div>
+      <div class="stat-value text-blue" id="ticketsSold">0</div>
+      <div class="stat-trend">
+        <span>Vé đã thanh toán</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <!-- Chart Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title">Biểu đồ doanh thu</h3>
+        <div class="toolbar">
+          <select id="mode">
+            <option value="daily" selected>Theo Ngày</option>
+            <option value="weekly">Theo Tuần</option>
+            <option value="monthly">Theo Tháng</option>
+          </select>
+          <select id="preset">
+            <option value="7">7 ngày qua</option>
+            <option value="30" selected>30 ngày qua</option>
+            <option value="90">3 tháng qua</option>
+          </select>
+          <button id="fetchBtn" class="secondary">Lọc</button>
+        </div>
+      </div>
+      <div style="position:relative; height:300px; width:100%">
+        <canvas id="dailyChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Top Movies Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title">Top Phim</h3>
+        <div class="toolbar">
+          <select id="topRange" style="width:100px">
+            <option value="today" selected>Hôm nay</option>
+            <option value="month">Tháng này</option>
+          </select>
+          <button id="topBtn" class="secondary">Xem</button>
+        </div>
+      </div>
+      <ul id="topList" class="top-list">
+        <li style="text-align:center; color:var(--text-muted); padding:20px">Đang tải...</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Sidebar Injection -->
+<script src="/admin/sidebar.js"></script>
+
+<script>
+  const apiBase = window.location.origin + '/api';
+  const fmtVND = n => (n||0).toLocaleString('vi-VN') + ' VND';
+  const el = id => document.getElementById(id);
+
+  let token = localStorage.getItem('admin_token') || '';
+  const loginPanel = el('loginPanel');
+  const dashboardPanel = el('dashboardPanel');
+
+  // --- Auth UI Logic ---
+  function setAuthUI(loggedIn) {
+    if(loggedIn) {
+      loginPanel.classList.add('hidden');
+      dashboardPanel.classList.remove('hidden');
+      try {
+        if(window.injectSidebar) window.injectSidebar(); // Re-trigger sidebar if needed
+        document.body.classList.add('has-admin-sidebar');
+        const sb = document.getElementById('adminSidebar');
+        if(sb) sb.style.display = 'block';
+      } catch(e){}
+    } else {
+      loginPanel.classList.remove('hidden');
+      dashboardPanel.classList.add('hidden');
+      document.body.classList.remove('has-admin-sidebar');
+      const sb = document.getElementById('adminSidebar');
+      if(sb) sb.style.display = 'none';
+    }
+  }
+
+  // --- Login ---
+  async function readErr(r){
+    try{
+      const ct = (r.headers.get('content-type') || '').toLowerCase();
+      if(ct.includes('application/json')){
+        const j = await r.json();
+        return j.detail || j.message || j.error || j.title || 'Đăng nhập thất bại';
+      }
+      const t = await r.text();
+      return t || 'Đăng nhập thất bại';
+    }catch{
+      return 'Đăng nhập thất bại';
+    }
+  }
+  async function login() {
+    el('loginError').textContent = '';
+    const btn = el('loginBtn');
+    const originalText = btn.textContent;
+    btn.textContent = 'Đang xử lý...';
+    
+    try {
+      const body = { email: el('email').value.trim(), password: el('password').value };
+      const r = await fetch(apiBase + '/auth/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+      });
+      if (!r.ok) throw new Error(await readErr(r));
+      const data = await r.json();
+      token = data.token;
+      localStorage.setItem('admin_token', token);
+      setAuthUI(true);
+      initDashboard();
+    } catch (e) {
+      el('loginError').textContent = e.message || 'Lỗi kết nối';
+    } finally {
+      btn.textContent = originalText;
+    }
+  }
+
+  el('loginBtn').addEventListener('click', login);
+
+  // --- Dashboard Logic ---
+  async function initDashboard() {
+    await Promise.all([loadOverview(), loadDaily(), loadTopMovies()]);
+  }
+
+  async function loadOverview() {
+    try {
+      const r = await fetch(apiBase + '/admin/dashboard/overview', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if (!r.ok) return;
+      const d = await r.json();
+      
+      // Animate numbers (simple)
+      el('todayRevenue').textContent = fmtVND(d.todayRevenue);
+      el('monthRevenue').textContent = fmtVND(d.monthRevenue);
+      el('ticketsSold').textContent = (d.ticketsSoldToday || 0).toLocaleString('vi-VN');
+    } catch(e) { console.error(e); }
+  }
+
+  async function loadDaily() {
+    try {
+      const days = parseInt(el('preset').value, 10);
+      const mode = el('mode').value;
+      const r = await fetch(apiBase + '/admin/revenue/daily?days=' + days + '&mode=' + mode, {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if (!r.ok) return;
+      const arr = await r.json();
+      renderDailyChart(arr);
+    } catch(e) { console.error(e); }
+  }
+
+  let chartInstance;
+  function renderDailyChart(arr) {
+    const ctx = el('dailyChart').getContext('2d');
+    if (chartInstance) chartInstance.destroy();
+    
+    // Theme colors
+    const textColor = '#9ca3af';
+    const gridColor = '#374151';
+    
+    chartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: { 
+        labels: arr.map(i => i.date), 
+        datasets: [{ 
+          label: 'Doanh thu', 
+          data: arr.map(i => i.amount), 
+          backgroundColor: '#3b82f6',
+          borderRadius: 4,
+          hoverBackgroundColor: '#2563eb'
+        }] 
+      },
+      options: { 
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            backgroundColor: '#1f2937',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: '#374151',
+            borderWidth: 1
+          }
+        },
+        scales: { 
+          y: { 
+            beginAtZero: true,
+            grid: { color: gridColor, drawBorder: false },
+            ticks: { color: textColor, callback: v => (v/1000000) + 'M' }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: textColor }
+          }
+        } 
+      }
+    });
+  }
+
+  async function loadTopMovies() {
+    try {
+      const range = el('topRange').value;
+      const r = await fetch(apiBase + '/admin/top-movies?range=' + range, { headers: { Authorization: 'Bearer ' + token } });
+      const arr = await r.json();
+      const ul = el('topList');
+      ul.innerHTML = '';
+      
+      if(!arr || arr.length === 0) {
+        ul.innerHTML = '<li style="text-align:center; color:var(--text-muted); padding:20px">Chưa có dữ liệu</li>';
+        return;
+      }
+
+      arr.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.className = 'top-item';
+        li.innerHTML = `
+          <div class="top-info">
+            <div class="rank-badge">${index + 1}</div>
+            <div class="top-title" title="${item.title}">${item.title}</div>
+          </div>
+          <div class="top-value">${fmtVND(item.amount)}</div>
+        `;
+        ul.appendChild(li);
+      });
+    } catch(e) { console.error(e); }
+  }
+
+  // Event Listeners
+  el('fetchBtn').addEventListener('click', () => loadDaily());
+  el('topBtn').addEventListener('click', () => loadTopMovies());
+  
+  // Init
+  if (!token) { 
+    setAuthUI(false);
+  } else { 
+    setAuthUI(true); 
+    initDashboard();
+  }
+</script>
+</body>
+</html>

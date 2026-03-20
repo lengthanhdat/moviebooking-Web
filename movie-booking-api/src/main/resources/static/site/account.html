@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tài khoản</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/site/common.css" />
+  <style>
+    :root{
+      --header-h: 80px;
+      --acc-bg:#020617;
+      --acc-border-soft: rgba(255,255,255,0.10);
+      --acc-border-softer: rgba(255,255,255,0.06);
+      --acc-text-muted: rgba(148,163,184,0.95);
+      --acc-ease:cubic-bezier(0.215, 0.61, 0.355, 1);
+      --header-pill-h: 44px;
+      --header-pill-bg: rgba(255,255,255,0.06);
+      --header-pill-border: var(--acc-border-soft);
+      --header-pill-shadow: inset 0 0 0 1px rgba(0,0,0,0.18);
+    }
+    html, body{min-height:100%}
+    html{
+      background: radial-gradient(900px 520px at 12% 0%, rgba(249,115,22,0.20), transparent 60%),
+                  radial-gradient(900px 520px at 88% 18%, rgba(37,99,235,0.14), transparent 60%),
+                  radial-gradient(800px 520px at 50% 110%, rgba(251,146,60,0.16), transparent 60%),
+                  var(--acc-bg);
+    }
+    body.account-vip{
+      background: radial-gradient(900px 520px at 12% 0%, rgba(249,115,22,0.20), transparent 60%),
+                  radial-gradient(900px 520px at 88% 18%, rgba(37,99,235,0.14), transparent 60%),
+                  radial-gradient(800px 520px at 50% 110%, rgba(251,146,60,0.16), transparent 60%),
+                  var(--acc-bg);
+      min-height: 100vh;
+      font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+      overflow-x:hidden;
+      padding-top: var(--header-h);
+      padding-bottom: 88px;
+    }
+    body.account-vip header{
+      height: var(--header-h);
+      background: rgba(2, 6, 23, 0.78);
+      border-bottom: 1px solid var(--acc-border-softer);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    body.account-vip .brand{
+      color:#fff;
+      font-weight:800;
+      font-size:20px;
+      letter-spacing:0.2px;
+      font-family:'Playfair Display', serif;
+    }
+    body.account-vip .brand .logo{
+      width:34px;height:34px;border-radius:17px;
+      box-shadow: 0 0 18px rgba(249, 115, 22, 0.34);
+    }
+    body.account-vip .container{max-width:1280px;padding:28px 22px;}
+    body.account-vip .section{margin-top:0;}
+    body.account-vip .page-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:18px;
+      margin: 6px 0 18px;
+    }
+    body.account-vip .page-title{
+      margin:0;
+      font-family:'Playfair Display', serif;
+      font-size:30px;
+      letter-spacing:0.2px;
+      color:#fff;
+      line-height:1.15;
+    }
+    body.account-vip .page-sub{
+      margin-top: 8px;
+      color: var(--acc-text-muted);
+      font-size: 13px;
+      line-height: 1.5;
+      max-width: 620px;
+    }
+    body.account-vip .stats{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    body.account-vip .stat{
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(2,6,23,0.44);
+      border-radius: 16px;
+      padding: 10px 12px;
+      min-width: 140px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.22);
+    }
+    body.account-vip .stat .k{
+      color: rgba(148,163,184,0.9);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.16px;
+    }
+    body.account-vip .stat .v{
+      margin-top: 6px;
+      color: rgba(226,232,240,0.95);
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0.18px;
+      font-variant-numeric: tabular-nums;
+    }
+    body.account-vip .page-grid{
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap: 14px;
+      align-items:start;
+    }
+    body.account-vip .card{
+      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      border-radius: 22px;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.55);
+      overflow:hidden;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    body.account-vip .card-inner{padding: 16px;}
+    body.account-vip .card-head{
+      padding: 16px 16px 0;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+    }
+    body.account-vip .card-title{
+      color:#fff;
+      font-weight: 900;
+      letter-spacing:0.18px;
+      font-size: 14px;
+      text-transform: uppercase;
+      margin:0;
+    }
+    body.account-vip .card-sub{
+      color: rgba(148,163,184,0.92);
+      font-size: 12px;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+    body.account-vip .profile-row{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    body.account-vip .avatar{
+      border-radius: 18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: 0 18px 40px rgba(249,115,22,0.20);
+      color:#fff;
+      font-weight: 900;
+      letter-spacing: 0.2px;
+      font-size: 18px;
+      flex: 0 0 auto;
+    }
+    body.account-vip .profile-meta{min-width:0}
+    body.account-vip .profile-name{
+      color:#fff;
+      font-weight: 900;
+      letter-spacing:0.2px;
+      font-size: 16px;
+      line-height:1.2;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      max-width: 280px;
+    }
+    body.account-vip .profile-email{
+      margin-top: 6px;
+      color: rgba(148,163,184,0.95);
+      font-size: 13px;
+      overflow-wrap:anywhere;
+    }
+    body.account-vip .pill{
+      display:inline-flex;
+      align-items:center;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(2, 6, 23, 0.45);
+      color: rgba(226,232,240,0.92);
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: 0.12px;
+      white-space:nowrap;
+    }
+    body.account-vip .pill.strong{
+      border-color: rgba(249,115,22,0.35);
+      box-shadow: 0 0 0 4px rgba(249,115,22,0.10), 0 0 22px rgba(249,115,22,0.14);
+    }
+    body.account-vip .fields{
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    body.account-vip .field-label{
+      color: rgba(148,163,184,0.9);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.16px;
+    }
+    body.account-vip .field{
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(2,6,23,0.42);
+      border-radius: 16px;
+      padding: 10px 12px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.22);
+    }
+    body.account-vip .field input{
+      width:100%;
+      border:none;
+      outline:none;
+      background:transparent;
+      color: rgba(226,232,240,0.95);
+      font-family: inherit;
+      font-size: 14px;
+      height: 22px;
+      padding: 0;
+    }
+    body.account-vip .field input::placeholder{color: rgba(148,163,184,0.75)}
+    body.account-vip .btn{
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: rgba(226,232,240,0.92);
+      font-weight: 900;
+      letter-spacing:0.2px;
+      cursor:pointer;
+      transition: transform .18s var(--acc-ease), box-shadow .22s var(--acc-ease), filter .2s var(--acc-ease);
+    }
+    body.account-vip .btn:disabled{opacity:0.65;cursor:not-allowed;transform:none}
+    body.account-vip .btn.primary{
+      border-color: rgba(249,115,22,0.55);
+      background: linear-gradient(135deg, var(--orange), var(--orange2));
+      box-shadow: 0 14px 30px rgba(249,115,22,0.22);
+      color:#fff;
+    }
+    body.account-vip .btn.primary:hover{transform: translateY(-2px);box-shadow: 0 20px 40px rgba(249,115,22,0.28);filter:brightness(1.02)}
+    body.account-vip .history{
+      padding: 14px 16px 16px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    body.account-vip .booking{
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(2,6,23,0.35);
+      border-radius: 18px;
+      padding: 12px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.20);
+    }
+    body.account-vip .booking-main{min-width:0;display:flex;flex-direction:column;gap:8px}
+    body.account-vip .booking-title{
+      color:#fff;
+      font-weight: 900;
+      letter-spacing:0.16px;
+      line-height: 1.25;
+      font-size: 15px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      max-width: 560px;
+    }
+    body.account-vip .booking-meta{
+      color: rgba(148,163,184,0.95);
+      font-size: 12px;
+      line-height: 1.45;
+      display:flex;
+      flex-wrap:wrap;
+      gap: 8px;
+    }
+    body.account-vip .booking-chips{display:flex;gap:6px;flex-wrap:wrap}
+    body.account-vip .chip{
+      height: 26px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      color: rgba(226,232,240,0.92);
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: 0.12px;
+    }
+    body.account-vip .booking-actions{display:flex;align-items:center;gap:8px;flex: 0 0 auto}
+    body.account-vip .empty{
+      border: 1px dashed rgba(148,163,184,0.25);
+      background: rgba(2,6,23,0.24);
+      border-radius: 18px;
+      padding: 18px 14px;
+      color: rgba(148,163,184,0.95);
+      text-align:center;
+      line-height: 1.5;
+    }
+    @media (max-width: 980px){
+      body.account-vip .page-head{align-items:flex-start;flex-direction:column;}
+      body.account-vip .stats{justify-content:flex-start;}
+      body.account-vip .page-grid{grid-template-columns: 1fr;}
+      body.account-vip .booking-title{max-width: 100%;}
+    }
+  </style>
+</head>
+<body class="account-vip">
+  <header>
+    <div class="brand" data-go-home><div class="logo">MB</div> Movie Booking</div>
+    <div class="nav">
+      <div class="searchbar">
+        <span class="icon">🔍</span>
+        <input id="search" placeholder="Tìm phim" />
+        <button id="btnSearch" class="primary">Tìm</button>
+      </div>
+      <div id="userArea"></div>
+    </div>
+  </header>
+  <div class="container">
+    <div class="section">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">Tài khoản</h1>
+          <div class="page-sub">Quản lý hồ sơ, bảo mật và lịch sử vé đã đặt.</div>
+        </div>
+        <div id="stats" class="stats"></div>
+      </div>
+      <div class="page-grid">
+        <div>
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Hồ sơ</div>
+                <div class="card-sub">Thông tin tài khoản của bạn.</div>
+              </div>
+            </div>
+            <div id="profile" class="card-inner"></div>
+          </div>
+          <div class="card" style="margin-top:12px">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Bảo mật</div>
+                <div class="card-sub">Đổi mật khẩu để bảo vệ tài khoản.</div>
+              </div>
+            </div>
+            <div class="card-inner">
+              <div class="fields">
+                <div>
+                  <div class="field-label">Mật khẩu hiện tại</div>
+                  <div class="field"><input id="currentPassword" type="password" placeholder="Nhập mật khẩu hiện tại" /></div>
+                </div>
+                <div>
+                  <div class="field-label">Mật khẩu mới</div>
+                  <div class="field"><input id="newPassword" type="password" placeholder="Nhập mật khẩu mới" /></div>
+                </div>
+                <button id="btnChange" class="btn primary" style="width:100%">Đổi mật khẩu</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Lịch sử đặt vé</div>
+                <div class="card-sub">Xem lại các vé bạn đã đặt.</div>
+              </div>
+            </div>
+            <div id="history" class="history"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/site/common.js"></script>
+  <script>
+    if(!requireAuth()) throw new Error('Unauthorized');
+    function formatMoneyVND(v){ return (new Intl.NumberFormat('vi-VN').format(v||0)) + 'đ'; }
+    function setStats({ totalBookings, totalTickets, totalSpent }){
+      const el = document.getElementById('stats');
+      if(!el) return;
+      el.innerHTML = `
+        <div class="stat"><div class="k">Đơn đã đặt</div><div class="v">${totalBookings}</div></div>
+        <div class="stat"><div class="k">Số vé</div><div class="v">${totalTickets}</div></div>
+        <div class="stat"><div class="k">Đã chi</div><div class="v">${formatMoneyVND(totalSpent)}</div></div>
+      `;
+    }
+    async function loadProfile(){
+      const box = document.getElementById('profile');
+      try{
+        const p = await fetchJson(API.profile);
+        const email = String(p.email || getEmail() || '');
+        const name = String(p.fullName || p.name || email || 'Tài khoản');
+        const initial = (name.trim()[0] || 'M').toUpperCase();
+        box.innerHTML = `
+          <div class="profile-row">
+            <div class="avatar">${initial}</div>
+            <div class="profile-meta">
+              <div class="profile-name">${name}</div>
+              <div class="profile-email">${email || '—'}</div>
+            </div>
+          </div>
+        `;
+      }catch(e){
+        box.innerHTML = `<div class="empty">${e.message}</div>`;
+      }
+    }
+    async function loadHistory(){
+      try{
+        const list = await fetchJson(API.myBookings);
+        const root = document.getElementById('history');
+        root.innerHTML = '';
+        const renderCard = (b)=>{
+          const d = document.createElement('div');
+          d.className = 'booking';
+          const seatsArr = Array.isArray(b.seats) ? b.seats.map(String) : [];
+          const seatsHtml = seatsArr.length ? seatsArr.map(s=>`<span class="chip">${s}</span>`).join('') : `<span class="chip">—</span>`;
+          const cinema = String(b.cinema || '');
+          const time = formatDisplay(b.startTime);
+          const totalStr = formatMoneyVND(b.totalPrice || 0);
+          const code = b.code ? String(b.code) : `#${b.id || ''}`;
+          d.innerHTML = `
+            <div class="booking-main">
+              <div class="booking-title">${b.movieTitle || ''}</div>
+              <div class="booking-meta">
+                <span class="pill">${time}</span>
+                ${cinema ? `<span class="pill">${cinema}</span>` : ''}
+                <span class="pill">Mã: ${code}</span>
+                <span class="pill strong">${totalStr}</span>
+              </div>
+              <div class="booking-chips">${seatsHtml}</div>
+            </div>
+            <div class="booking-actions">
+              <button class="btn primary" style="height:40px;padding:0 14px" type="button">Xem vé</button>
+            </div>
+          `;
+          const btn = d.querySelector('button');
+          if(btn){
+            btn.onclick = ()=>{ location.href = '/site/confirm.html?id=' + encodeURIComponent(b.id); };
+          }
+          root.appendChild(d);
+        };
+        let arr = Array.isArray(list) ? list : [];
+        if(arr.length === 0){
+          const email = getEmail();
+          const key = `booking_history:${email}`;
+          const localArr = JSON.parse(localStorage.getItem(key) || '[]');
+          arr = Array.isArray(localArr) ? localArr : [];
+        }
+        if(arr.length === 0){
+          root.innerHTML = `<div class="empty">Chưa có vé nào. Hãy đặt vé để lịch sử hiển thị ở đây.</div>`;
+          setStats({ totalBookings: 0, totalTickets: 0, totalSpent: 0 });
+          return;
+        }
+        const totalBookings = arr.length;
+        const totalTickets = arr.reduce((sum, b)=> sum + ((Array.isArray(b.seats) ? b.seats.length : 0) || 0), 0);
+        const totalSpent = arr.reduce((sum, b)=> sum + (Number(b.totalPrice) || 0), 0);
+        setStats({ totalBookings, totalTickets, totalSpent });
+        arr.forEach(renderCard);
+      }catch(e){
+        document.getElementById('history').innerHTML = `<div class="empty">${e.message}</div>`;
+        setStats({ totalBookings: 0, totalTickets: 0, totalSpent: 0 });
+      }
+    }
+    async function changePassword(){
+      const btn = document.getElementById('btnChange');
+      const currentPassword = String(document.getElementById('currentPassword').value || '');
+      const newPassword = String(document.getElementById('newPassword').value || '');
+      if(!currentPassword || !newPassword){ toast('Vui lòng nhập đủ mật khẩu'); return; }
+      if(currentPassword === newPassword){ toast('Mật khẩu mới phải khác mật khẩu hiện tại'); return; }
+      const prev = btn ? btn.textContent : '';
+      if(btn){ btn.disabled = true; btn.textContent = 'Đang đổi...'; }
+      try{
+        await fetchJson(API.changePassword, { method:'POST', body: JSON.stringify({ currentPassword, newPassword }) });
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        toast('Đổi mật khẩu thành công');
+      }catch(e){
+        toast(e.message);
+      }finally{
+        if(btn){ btn.disabled = false; btn.textContent = prev || 'Đổi mật khẩu'; }
+      }
+    }
+    document.getElementById('btnChange').onclick = changePassword;
+    document.getElementById('newPassword').addEventListener('keyup', e=>{ if(e.key === 'Enter') changePassword(); });
+    loadProfile(); loadHistory(); injectBottomNav();
+  </script>
+</body>
+</html>

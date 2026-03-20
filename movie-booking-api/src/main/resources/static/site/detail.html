@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chi tiết phim - Movie Booking VIP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/site/common.css" />
+  <style>
+    /* VIP Theme Variables */
+    :root {
+      --bg-dark: #020617;
+      --bg-panel: #0f172a;
+      --primary: #f97316;
+      --primary-gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      --accent: #fb923c;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --glass: rgba(15, 23, 42, 0.65);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    html, body {
+      background-color: var(--bg-dark);
+      font-family: 'Outfit', sans-serif;
+      color: var(--text-main);
+      overflow-x: hidden;
+      margin: 0;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-dark); 
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155; 
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary); 
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Header */
+    header {
+      background: rgba(2, 6, 23, 0.85) !important;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--glass-border);
+      height: 80px;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+    }
+    .brand { 
+      font-family: 'Playfair Display', serif; 
+      font-size: 24px; 
+      color: #fff;
+    }
+    .brand .logo { 
+      background: var(--primary-gradient); 
+      box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
+    }
+
+    /* Searchbar */
+    .searchbar {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 99px;
+      padding: 0 20px;
+      height: 44px;
+    }
+    .searchbar:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
+    }
+    .searchbar input { font-family: 'Outfit', sans-serif; color: #fff; }
+
+    /* Detail Hero */
+    .detail-hero {
+      position: relative;
+      height: 85vh; /* Taller for more impact */
+      min-height: 600px;
+      width: 100%;
+      margin-top: 0;
+      overflow: hidden;
+    }
+    .hero-backdrop {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center top;
+      filter: blur(0px);
+      transform: scale(1.1); /* Subtle zoom */
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 50%, rgba(2,6,23,0.4) 0%, rgba(2,6,23,0.95) 100%),
+                  linear-gradient(to top, #020617 10%, transparent 60%);
+      z-index: 1;
+    }
+    .hero-container {
+      position: relative;
+      z-index: 2;
+      max-width: 1300px; /* Wider container */
+      margin: 0 auto;
+      height: 100%;
+      display: flex;
+      align-items: center; /* Center vertically */
+      padding: 0 40px;
+      gap: 60px;
+    }
+
+    /* Poster */
+    .detail-poster-box {
+      flex-shrink: 0;
+      width: 320px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255,255,255,0.1);
+      position: relative;
+      animation: fadeInUp 1s var(--ease-out);
+    }
+    .detail-poster-img {
+      width: 100%;
+      display: block;
+      transition: transform 0.7s var(--ease-out);
+    }
+    .detail-poster-box:hover .detail-poster-img { transform: scale(1.05); }
+
+    /* Info */
+    .detail-info {
+      flex: 1;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+      padding-top: 100px;
+    }
+    .movie-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px; /* Reduced from 64px */
+      font-weight: 700;
+      line-height: 1.1;
+      margin: 0 0 24px 0;
+      color: #fff;
+      opacity: 0;
+      animation: fadeInUp 0.8s var(--ease-out) 0.2s forwards;
+    }
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeInUp 0.8s var(--ease-out) 0.3s forwards;
+    }
+    .meta-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50px;
+      backdrop-filter: blur(8px);
+      font-size: 16px;
+      font-weight: 600;
+      color: #e2e8f0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .meta-badge.highlight {
+      background: rgba(249, 115, 22, 0.15);
+      border-color: rgba(249, 115, 22, 0.4);
+      color: var(--primary);
+      box-shadow: 0 0 15px rgba(249, 115, 22, 0.2);
+    }
+    .genre-list {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeInUp 0.8s var(--ease-out) 0.35s forwards;
+    }
+    .genre-tag {
+      color: #e2e8f0;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+      padding: 6px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .genre-tag:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.2);
+    }
+    .genre-tag:not(:last-child)::after {
+      display: none;
+    }
+
+    /* Action Buttons */
+    .action-row {
+      display: flex;
+      gap: 20px;
+      opacity: 0;
+      animation: fadeInUp 0.8s var(--ease-out) 0.4s forwards;
+    }
+    .btn-vip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 40px;
+      border-radius: 99px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid transparent;
+      gap: 12px;
+      min-width: 180px;
+      letter-spacing: 0.5px;
+    }
+    .btn-vip.primary {
+      background: var(--primary-gradient);
+      color: #000;
+      box-shadow: 0 0 25px rgba(249, 115, 22, 0.3);
+    }
+    .btn-vip.primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 40px rgba(249, 115, 22, 0.5);
+    }
+    .btn-vip.glass {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.2);
+      color: #fff;
+      backdrop-filter: blur(4px);
+    }
+    .btn-vip.glass:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: #fff;
+      transform: translateY(-3px);
+    }
+
+    /* Content Layout */
+    .main-container {
+      max-width: 1300px;
+      margin: -60px auto 0; /* Overlap Hero */
+      padding: 0 40px 80px;
+      display: grid;
+      grid-template-columns: 2.2fr 1fr;
+      gap: 80px;
+      position: relative;
+      z-index: 10;
+      min-width: 0;
+    }
+    .main-container > * { min-width: 0; }
+
+    /* Section Styling */
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      color: #fff;
+      margin-bottom: 30px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .section-title::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 32px;
+      background: var(--primary);
+      border-radius: 4px;
+      box-shadow: 0 0 10px var(--primary);
+    }
+    
+    .synopsis {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+      color: #cbd5e1;
+      margin-bottom: 44px;
+      font-weight: 400;
+      opacity: 0.9;
+      padding-left: 19px;
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    /* Cast Scroll */
+    .cast-scroll {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      padding-bottom: 20px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) transparent;
+      mask-image: linear-gradient(to right, black 90%, transparent 100%);
+    }
+    .cast-item {
+      min-width: 100px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+    .cast-item:hover { transform: translateY(-5px); }
+    .cast-avatar {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
+      border: 2px solid rgba(255,255,255,0.1);
+      background: #1e293b;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .cast-item:hover .cast-avatar {
+      border-color: var(--primary);
+      box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
+    }
+    .cast-name { font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px; }
+    .cast-role { font-size: 13px; color: var(--text-muted); }
+
+    /* Booking Panel */
+    .booking-panel {
+      background: transparent;
+      padding: 0;
+      border: none;
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+    .booking-panel .section-title {
+      font-size: 24px !important;
+      margin-bottom: 24px !important;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 15px;
+      width: 100%;
+    }
+    .booking-panel .section-title::before { display: none; } /* Remove side bar */
+
+    .cinema-group { 
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      margin-bottom: 12px; 
+      padding: 16px;
+      padding-right: 32px;
+      display: flex;
+      gap: 16px;
+      transition: all 0.3s ease;
+      align-items: flex-start;
+      /* width: fit-content; Removed to allow stretch */
+    }
+    .cinema-group:hover {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+    }
+    
+    .cinema-left {
+      flex-shrink: 0;
+    }
+    .cinema-icon {
+      width: 40px; height: 40px;
+      background: #1e293b;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--primary);
+      font-size: 18px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    
+    .cinema-info {
+      flex: 1;
+    }
+    .cinema-name {
+      color: #fff;
+      font-weight: 700;
+      margin-bottom: 8px;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: block;
+      margin-top: 0;
+      line-height: 1.4;
+    }
+    
+    .time-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-left: 0;
+    }
+    .time-pill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: #cbd5e1;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 70px;
+    }
+    .time-pill:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Info Box Side */
+    .info-box-side {
+      background: rgba(255,255,255,0.03);
+      border-radius: 16px;
+      padding: 30px;
+      border: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 30px;
+      backdrop-filter: blur(10px);
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--text-muted); font-size: 15px; flex: 0 0 auto; }
+    .info-val { color: #fff; font-weight: 600; text-align: right; font-size: 15px; flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+
+    /* Footer VIP (Copied) */
+    .footer { 
+      margin-top: 80px;
+      background: #050b14; 
+      border-top: 1px solid rgba(255,255,255,0.05); 
+      padding-top: 80px;
+      padding-bottom: 40px;
+      position: relative;
+    }
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+      opacity: 0.5;
+    }
+    .footer .cols {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .footer h4 { 
+      font-family: 'Playfair Display', serif; 
+      color: #fff; 
+      font-size: 20px;
+      margin-bottom: 24px;
+    }
+    .footer ul { list-style: none; padding: 0; }
+    .footer ul li { margin-bottom: 12px; }
+    .footer ul li a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    .footer ul li a:hover { color: var(--primary); }
+    .footer .socials { display: flex; gap: 12px; margin-top: 20px; }
+    .footer .icon {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      text-decoration: none;
+      transition: all 0.3s;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .footer .icon:hover {
+      background: var(--primary);
+      transform: translateY(-5px);
+    }
+    
+    /* Responsive */
+    @media (max-width: 900px) {
+      .hero-container { flex-direction: column; align-items: center; text-align: center; height: auto; padding-top: 100px; padding-bottom: 40px; }
+      .detail-poster-box { width: 220px; margin-bottom: 30px; }
+      .meta-row { justify-content: center; }
+      .genre-list { justify-content: center; margin: 0; margin-top: 10px; width: 100%; }
+      .action-row { justify-content: center; }
+      .main-container { grid-template-columns: 1fr; margin-top: 0; }
+      .detail-hero { height: auto; min-height: auto; }
+      .section-title { justify-content: center; }
+      .section-title::before { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand" onclick="location.href='/site/home.html'"><div class="logo">M</div> Movie Booking</div>
+    <div class="nav">
+      <div class="searchbar">
+        <span class="icon" style="color: #94a3b8">🔍</span>
+        <input id="search" placeholder="Tìm kiếm phim..." />
+        <button id="btnSearch" class="primary" style="display:none">Go</button>
+      </div>
+      <div id="userArea"></div>
+    </div>
+  </header>
+
+  <div id="app"></div>
+
+  <footer class="footer">
+    <div class="cols">
+      <div>
+        <h4>Về chúng tôi</h4>
+        <ul>
+          <li><a href="#">Giới thiệu</a></li>
+          <li><a href="#">Liên hệ</a></li>
+          <li><a href="#">Tuyển dụng</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Điều khoản</h4>
+        <ul>
+          <li><a href="#">Quy định chung</a></li>
+          <li><a href="#">Chính sách bảo mật</a></li>
+          <li><a href="#">Điều khoản giao dịch</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Kết nối</h4>
+        <div class="socials">
+          <a class="icon" href="#">F</a>
+          <a class="icon" href="#">I</a>
+          <a class="icon" href="#">Y</a>
+        </div>
+      </div>
+    </div>
+    <div style="text-align: center; color: #64748b; font-size: 14px; margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+      &copy; 2025 Movie Booking VIP. All rights reserved.
+    </div>
+  </footer>
+
+  <script src="/site/common.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script>
+    const { useState, useEffect } = React;
+
+    // Helper: Format Date
+    function fmtDate(d){
+       try { return new Date(d).toLocaleDateString('vi-VN'); } catch{ return ''; }
+    }
+    // Helper: Time
+    function formatTime(d){
+       try { return new Date(d).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'}); } catch{ return ''; }
+    }
+
+    // --- Components ---
+
+    function TrailerModal({ title, movieId, tmdbId, open, onClose }){
+      const [key, setKey] = useState(null);
+      
+      useEffect(()=>{
+        if(!open) return;
+        (async()=>{
+          let id=null;
+          const norm = (k) => {
+             const s=String(k||'').trim(); if(!s) return null;
+             if(/^https?:\/\//.test(s)){
+               try{
+                 const u=new URL(s);
+                 if(u.hostname.includes('youtu.be')){ return (u.pathname||'').replace(/^\//,''); }
+                 const vid=u.searchParams.get('v'); if(vid) return vid;
+               }catch{}
+               return null; 
+             }
+             return s;
+          };
+          
+          if(movieId){
+            try{ const t = await fetchJson(API.trailer(movieId)); if(t&&t.key) id=norm(t.key); }catch{}
+            if(!id) try{ const fb = await fetchJson(API.trailerFallback(movieId)); if(fb&&fb.key) id=norm(fb.key); }catch{}
+          }
+          if(!id && tmdbId){
+            try{ const v = await fetchJson(API.publicVideos(tmdbId)); if(v&&v.key) id=norm(v.key); }catch{}
+          }
+          if(id) setKey(id); else if(onClose) onClose();
+        })();
+      },[movieId, tmdbId, open]);
+
+      if(!open || !key) return null;
+      return React.createElement('div', { className:'overlay', style:{display:'flex', zIndex: 9999} },
+        React.createElement('div', { className:'modal', style:{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)' } },
+          React.createElement('iframe', {
+            width: '100%', height: '350',
+            src: `https://www.youtube.com/embed/${key}?rel=0&modestbranding=1&autoplay=1`,
+            frameBorder:'0', allow:'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
+            allowFullScreen:true
+          }),
+          React.createElement('div', { className:'actions', style:{marginTop:15, justifyContent:'flex-end'}},
+            React.createElement('button', { 
+              className:'btn-vip glass', 
+              style:{padding:'8px 24px', minWidth:'auto', fontSize:'14px'},
+              onClick:onClose 
+            }, 'Đóng')
+          )
+        )
+      );
+    }
+
+    function Cast({ tmdbId, internalId, fallbackStr }){
+      const [list,setList] = useState([]);
+      useEffect(()=>{
+        (async()=>{
+          try{
+            let arr = [];
+            if(tmdbId){ try{ const c = await fetchJson(API.publicCast(tmdbId)); if(Array.isArray(c)) arr=c; }catch{} }
+            if(!arr.length && internalId){ try{ const c = await fetchJson(API.credits(internalId)); if(Array.isArray(c)) arr=c.map(x=>({name:x.name, character:x.character, photo:x.photo})); }catch{} }
+            
+            if(!arr.length && fallbackStr){
+               arr = String(fallbackStr).split(',').map(s=>({name:s.trim(), character:''}));
+            }
+            setList(arr.slice(0, 15));
+          }catch{ setList([]); }
+        })();
+      },[tmdbId, internalId]);
+
+      if(!list.length) return null;
+
+      return React.createElement('div', { style: {marginTop: '40px'} },
+        React.createElement('h3', { className:'section-title' }, 'Diễn viên'),
+        React.createElement('div', { className:'cast-scroll' },
+          list.map((c, i) => React.createElement('div', { className:'cast-item', key:i },
+             c.photo || c.profile_path 
+               ? React.createElement('img', { 
+                   className:'cast-avatar', 
+                   src: c.photo || (c.profile_path ? `https://image.tmdb.org/t/p/w200${c.profile_path}` : '') 
+                 })
+               : React.createElement('div', { className:'cast-avatar', style:{display:'flex',alignItems:'center',justifyContent:'center'} }, '👤'),
+             React.createElement('div', { className:'cast-name' }, c.name),
+             c.character && React.createElement('div', { className:'cast-role' }, c.character)
+          ))
+        )
+      );
+    }
+
+    function ShowtimesBox({ internalId, tmdbId }){
+      const [groups, setGroups] = useState(null);
+      useEffect(()=>{
+        (async()=>{
+           try{
+            const id = tmdbId || internalId;
+            if(!id){ setGroups({}); return; }
+            let all = [];
+            try{ const list = await fetchJson(API.showtimes(id)); if(Array.isArray(list)) all = list; }catch{}
+            const uniqMap = {}; all.forEach(st=>{ if(st&&st.id) uniqMap[st.id]=st; });
+            const visible = Object.values(uniqMap).filter(st => {
+               try{ return (new Date(st.startTime)) >= new Date(); }catch{ return true; }
+            });
+            const gs = {};
+            visible.forEach(st => { const k = st.cinema || 'Rạp Khác'; (gs[k]=gs[k]||[]).push(st); });
+            Object.keys(gs).forEach(k => gs[k].sort((a,b)=>new Date(a.startTime) - new Date(b.startTime)));
+            setGroups(gs);
+           }catch{ setGroups({}); }
+        })();
+      }, [internalId, tmdbId]);
+
+      if(!groups || Object.keys(groups).length === 0) {
+        return React.createElement('div', { className:'booking-panel', style:{textAlign:'center', color:'#94a3b8'} }, 
+          'Chưa có lịch chiếu cho phim này.'
+        );
+      }
+
+      return React.createElement('div', { className:'booking-panel' },
+        React.createElement('h3', { className:'section-title', style:{fontSize:'24px'} }, 'Lịch chiếu'),
+        Object.keys(groups).map((cinema, idx) => 
+          React.createElement('div', { className:'cinema-group', key:idx },
+            React.createElement('div', { className:'cinema-left' },
+               React.createElement('div', { className:'cinema-icon' }, '🎬')
+            ),
+            React.createElement('div', { className:'cinema-info' },
+              React.createElement('div', { className:'cinema-name' }, cinema),
+              React.createElement('div', { className:'time-grid' },
+                groups[cinema].map(st => 
+                  React.createElement('button', { 
+                    className:'time-pill', 
+                    key:st.id,
+                    onClick: () => {
+                       const mid = internalId || tmdbId;
+                       const dest = `/site/seats.html?showtimeId=${st.id}&movieId=${mid}`;
+                       if(requireAuth(dest)) location.href=dest;
+                    }
+                  }, formatTime(st.startTime))
+                )
+              )
+            )
+          )
+        )
+      );
+    }
+
+    function DetailPage(){
+      const { movieId } = qs();
+      const [m, setM] = useState(null);
+      const [loading, setLoading] = useState(true);
+      const [trailerOpen, setTrailerOpen] = useState(false);
+
+      useEffect(()=>{
+        (async()=>{
+          try{
+            let movieData = null;
+            let internalId = null;
+            const [internalData, resolveData, publicData] = await Promise.all([
+              fetchJson(API.movieDetail(movieId)).catch(()=>null),
+              fetchJson(API.resolve(movieId)).catch(()=>null),
+              fetchJson(API.publicDetail(movieId)).catch(()=>null)
+            ]);
+
+            if(internalData && internalData.id){
+              movieData = internalData;
+              internalId = internalData.id;
+            } else if(resolveData && resolveData.internalId){
+              internalId = resolveData.internalId;
+              movieData = await fetchJson(API.movieDetail(internalId)).catch(()=>null);
+            }
+
+            if(!movieData){
+              if(publicData){
+                movieData = {
+                  tmdbId: publicData.id,
+                  title: publicData.title,
+                  description: publicData.overview,
+                  director: publicData.director,
+                  posterUrl: publicData.poster_path ? `https://image.tmdb.org/t/p/w500${publicData.poster_path}` : '',
+                  backdropUrl: publicData.backdrop_path ? `https://image.tmdb.org/t/p/original${publicData.backdrop_path}` : '',
+                  releaseDate: publicData.release_date,
+                  voteAverage: publicData.vote_average,
+                  runtime: publicData.runtime,
+                  genres: publicData.genres ? publicData.genres.map(g=>g.name) : [],
+                  countries: publicData.countries
+                };
+              }
+            }
+
+            setM(movieData);
+          } catch(e) { console.error(e); } finally { setLoading(false); }
+        })();
+      }, [movieId]);
+
+      if(loading) return React.createElement('div', { style:{padding:100, textAlign:'center', color:'#fff'} }, 'Đang tải...');
+      if(!m) return React.createElement('div', { style:{padding:100, textAlign:'center', color:'#fff'} }, 'Không tìm thấy phim');
+
+      const backdrop = m.backdropUrl || m.posterUrl || '';
+      const poster = m.posterUrl || '';
+      const title = m.title || m.titleVi || 'Chưa có tên';
+      const releaseYear = (m.releaseDate || '2025').substring(0,4);
+      const rating = m.voteAverage || 8.5;
+      const runtime = m.runtime || m.durationMinutes || 0;
+      const genres = Array.isArray(m.genres) ? m.genres : (m.genre ? String(m.genre).split(',') : []);
+
+      return React.createElement('div', { className: 'detail-page' },
+        // Hero Section
+        React.createElement('div', { className: 'detail-hero' },
+          React.createElement('div', { className: 'hero-backdrop', style: { backgroundImage: `url(${backdrop})` } }),
+          React.createElement('div', { className: 'hero-overlay' }),
+          React.createElement('div', { className: 'hero-container' },
+            React.createElement('div', { className: 'detail-poster-box' },
+              poster ? React.createElement('img', { src: poster, className: 'detail-poster-img' }) : null
+            ),
+            React.createElement('div', { className: 'detail-info' },
+              React.createElement('h1', { className: 'movie-title' }, title),
+              React.createElement('div', { className: 'meta-row' },
+                React.createElement('div', { className: 'meta-badge highlight' }, 
+                  React.createElement('span', null, '★'), rating.toFixed(1)
+                ),
+                React.createElement('div', { className: 'meta-badge' }, 
+                  React.createElement('span', null, '📅'), releaseYear
+                ),
+                runtime > 0 ? React.createElement('div', { className: 'meta-badge' }, 
+                  React.createElement('span', null, '⏱'), `${runtime} phút`
+                ) : null
+              ),
+              React.createElement('div', { className: 'genre-list' },
+                 genres.map((g,i) => React.createElement('span', { className:'genre-tag', key:i }, g))
+              ),
+              React.createElement('div', { className: 'action-row' },
+                React.createElement('button', { 
+                   className: 'btn-vip primary',
+                   onClick: () => {
+                      document.querySelector('.booking-panel').scrollIntoView({behavior: 'smooth'});
+                   }
+                }, React.createElement('span', null, '🎟'), 'Đặt Vé Ngay'),
+                React.createElement('button', { 
+                   className: 'btn-vip glass',
+                   onClick: () => setTrailerOpen(true)
+                }, React.createElement('span', null, '▶'), 'Xem Trailer')
+              )
+            )
+          )
+        ),
+
+        // Main Content
+        React.createElement('div', { className: 'main-container' },
+          // Left Col
+          React.createElement('div', { className: 'main-col' },
+            React.createElement('h3', { className: 'section-title' }, 'Nội dung phim'),
+            React.createElement('p', { className: 'synopsis' }, m.description || m.overviewVi || 'Đang cập nhật nội dung...'),
+            
+            React.createElement(Cast, { tmdbId: m.tmdbId, internalId: m.id, fallbackStr: m.cast }),
+            
+            React.createElement('div', { style:{marginTop: 60} }),
+            React.createElement(ShowtimesBox, { internalId: m.id, tmdbId: m.tmdbId })
+          ),
+          
+          // Right Col (Info)
+          React.createElement('div', { className: 'side-col' },
+             React.createElement('div', { className: 'info-box-side' },
+                React.createElement('h4', { style:{color:'#fff', marginBottom:20, fontFamily:'Playfair Display', fontSize:'22px'} }, 'Thông tin chi tiết'),
+                React.createElement('div', { className:'info-row' },
+                   React.createElement('span', { className:'info-label'}, 'Đạo diễn'),
+                   React.createElement('span', { className:'info-val'}, m.director || 'N/A')
+                ),
+                React.createElement('div', { className:'info-row' },
+                   React.createElement('span', { className:'info-label'}, 'Quốc gia'),
+                   React.createElement('span', { className:'info-val'}, Array.isArray(m.countries) ? m.countries.map(c => (typeof c === 'string' ? c : c && c.name)).filter(Boolean).join(', ') : 'N/A')
+                )
+             )
+          )
+        ),
+
+        // Trailer Modal
+        React.createElement(TrailerModal, { 
+           open: trailerOpen, 
+           onClose: ()=>setTrailerOpen(false),
+           movieId: m.id,
+           tmdbId: m.tmdbId
+        })
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('app'));
+    root.render(React.createElement(DetailPage));
+  </script>
+</body>
+</html>

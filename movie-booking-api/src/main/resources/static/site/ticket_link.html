@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vé từ liên kết</title>
+  <link rel="stylesheet" href="/site/common.css" />
+</head>
+<body>
+  <header>
+    <div class="brand"><div class="logo">MB</div> Movie Booking</div>
+    <div class="nav">
+      <div class="searchbar">
+        <span class="icon">🔍</span>
+        <input id="search" placeholder="Tìm phim" />
+        <button id="btnSearch" class="primary">Tìm</button>
+      </div>
+      <div id="userArea"></div>
+    </div>
+  </header>
+  <div class="container">
+    <div class="section">
+      <h2>Vé</h2>
+      <div id="ticket" class="box"></div>
+    </div>
+  </div>
+  <script src="/site/common.js"></script>
+  <script>
+    const id = new URLSearchParams(location.search).get('id');
+    async function load(){ try{ const list=await fetchJson(API.myBookings); const b=list.find(x=>String(x.id)===String(id)); if(!b){ const email=getEmail(); const arr=JSON.parse(localStorage.getItem(`booking_history:${email}`)||'[]'); const bb=arr.find(x=>String(x.id)===String(id)); if(bb){ render(bb); return; } document.getElementById('ticket').textContent='Không tìm thấy vé'; return; } render(b); }catch(e){ document.getElementById('ticket').textContent=e.message; } }
+    function render(b){ const box=document.getElementById('ticket'); const timeText=formatDisplay(b.startTime); box.innerHTML = `Mã: ${b.code || ''} • ${timeText} • ${b.cinema || ''} • ${b.room || ''} • Ghế: ${(b.seats||[]).join(', ')} • Tổng: ${new Intl.NumberFormat('vi-VN').format(b.totalPrice)} VND`; const c=document.createElement('canvas'); c.width=240; c.height=80; const g=c.getContext('2d'); g.fillStyle='#fff'; for(let i=0;i<String(b.code||'TICKET').length;i++){ const h=(String(b.code).charCodeAt(i)||65)%60; g.fillRect(10+i*10,10,6,10+h); } box.appendChild(c); }
+    load().catch(e=>toast(e.message));
+  </script>
+</body>
+</html>

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quản lý rạp | Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        body {
+            margin: 0;
+            margin-left: 240px;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            transition: margin-left 0.3s ease;
+        }
+
+        @media (max-width: 1024px) {
+            body { margin-left: 0; }
+        }
+
+        .main-content {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p {
+            margin: 4px 0 0;
+            color: var(--text-muted);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .toolbar {
+            padding: 20px;
+            display: flex;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+        .search-box input {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 14px;
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+        }
+        .btn-secondary {
+            background: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { background: #475569; }
+        .btn-icon {
+            padding: 8px;
+            border-radius: 6px;
+            color: var(--text-muted);
+            background: transparent;
+        }
+        .btn-icon:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-main);
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            background: #1e293b;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            padding: 16px 24px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        td {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+            color: var(--text-main);
+        }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .badge-success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .badge-warning { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.show { opacity: 1; }
+        .modal {
+            background: var(--bg-card);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.show .modal { transform: scale(1); }
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h3 { margin: 0; font-size: 18px; color: white; }
+        .close-modal { background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 20px; }
+        .modal-body { padding: 24px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 13px; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background: rgba(0,0,0,0.2);
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            color: white;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-content">
+    <div class="header">
+        <div>
+            <h2>Quản lý rạp</h2>
+            <p>Quản lý danh sách rạp chiếu phim và phòng chiếu</p>
+        </div>
+        <div id="userInfo"></div>
+    </div>
+
+    <div class="card">
+        <div class="toolbar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input id="q" placeholder="Tìm theo tên hoặc địa điểm..." />
+            </div>
+            <button class="btn btn-primary" id="openCreateBtn">
+                <i class="fas fa-plus"></i> Thêm rạp mới
+            </button>
+        </div>
+        <div class="table-container" style="overflow-x:auto">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">ID</th>
+                        <th>Tên rạp</th>
+                        <th>Địa điểm</th>
+                        <th>Trạng thái</th>
+                        <th style="text-align: right;">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="listBody">
+                    <!-- JS Render -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Cinema Modal -->
+<div id="cinemaModalOverlay" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="cinemaModalTitle">Thêm rạp mới</h3>
+            <button class="close-modal" onclick="closeCinemaModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="c_id">
+            <div class="form-group">
+                <label>Tên rạp</label>
+                <input id="c_name" placeholder="Ví dụ: CGV Vincom..." />
+            </div>
+            <div class="form-group">
+                <label>Địa điểm</label>
+                <input id="c_location" placeholder="Ví dụ: Quận 1, TP.HCM" />
+            </div>
+            <div class="form-group">
+                <label>Trạng thái</label>
+                <select id="c_status">
+                    <option value="ACTIVE">Đang hoạt động</option>
+                    <option value="MAINTENANCE">Bảo trì</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeCinemaModal()">Hủy</button>
+            <button class="btn btn-primary" id="saveCinemaBtn">Lưu</button>
+        </div>
+    </div>
+</div>
+
+<!-- Room Manager Modal -->
+<div id="roomOverlay" class="modal-overlay">
+    <div class="modal" style="max-width: 700px;">
+        <div class="modal-header">
+            <h3 id="roomModalTitle">Quản lý phòng chiếu</h3>
+            <button class="close-modal" onclick="closeRoomModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group" style="display: flex; gap: 10px; align-items: flex-end;">
+                <div style="flex: 2;">
+                    <label>Tên phòng</label>
+                    <input id="rm_name" placeholder="Tên phòng (VD: Room 1)" />
+                </div>
+                <div style="flex: 1;">
+                    <label>Trạng thái</label>
+                    <select id="rm_status">
+                        <option value="ACTIVE">Hoạt động</option>
+                        <option value="MAINTENANCE">Bảo trì</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="rm_addBtn" style="margin-bottom: 2px;">
+                    <i class="fas fa-plus"></i> Thêm
+                </button>
+            </div>
+            
+            <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên phòng</th>
+                            <th>Trạng thái</th>
+                            <th style="text-align: right;">Xóa</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roomListBody">
+                        <!-- Rooms Render -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeRoomModal()">Đóng</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="/admin/sidebar.js"></script>
+<script>
+    const api = window.location.origin + '/api/admin/cinemas';
+    let token = localStorage.getItem('admin_token') || '';
+    const hdrs = () => token ? { Authorization: 'Bearer ' + token, 'Content-Type':'application/json' } : { 'Content-Type':'application/json' };
+    
+    let cinemasList = [];
+
+    // Helper: Toast
+    function showToast(msg, type='success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<span>${msg}</span> <i class="fas fa-times" style="cursor:pointer" onclick="this.parentElement.remove()"></i>`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    async function loadList(){
+        try {
+            const r = await fetch(api, { headers: hdrs() });
+            if(r.ok) {
+                cinemasList = await r.json();
+                renderList(cinemasList);
+            }
+        } catch(e) { console.error(e); }
+    }
+
+    function renderList(arr){
+        const tb = document.getElementById('listBody');
+        tb.innerHTML = '';
+        if(arr.length === 0) {
+            tb.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 30px; color: var(--text-muted);">Chưa có rạp nào</td></tr>`;
+            return;
+        }
+
+        arr.forEach(c => {
+            const tr = document.createElement('tr');
+            const st = (c.status||'').toString().toUpperCase();
+            let statusHtml = '';
+            if(st === 'ACTIVE') statusHtml = `<span class="badge badge-success">Đang hoạt động</span>`;
+            else statusHtml = `<span class="badge badge-warning">Bảo trì</span>`;
+
+            tr.innerHTML = `
+                <td style="color:var(--text-muted)">#${c.id}</td>
+                <td style="font-weight: 500; color: white;">${c.name||''}</td>
+                <td>${c.location||''}</td>
+                <td>${statusHtml}</td>
+                <td style="text-align: right;">
+                    <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="openRoomManager(${c.id}, '${c.name}')">
+                        <i class="fas fa-door-open"></i> Phòng
+                    </button>
+                    <button class="btn btn-icon" onclick="openEditCinema(${c.id})" title="Sửa">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-icon" style="color:var(--danger)" onclick="delCinema(${c.id})" title="Xóa">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tb.appendChild(tr);
+        });
+    }
+
+    // --- Cinema Modal Logic ---
+    function openCreateCinema() {
+        document.getElementById('cinemaModalTitle').textContent = 'Thêm rạp mới';
+        document.getElementById('c_id').value = '';
+        document.getElementById('c_name').value = '';
+        document.getElementById('c_location').value = '';
+        document.getElementById('c_status').value = 'ACTIVE';
+        
+        const overlay = document.getElementById('cinemaModalOverlay');
+        overlay.style.display = 'flex';
+        requestAnimationFrame(() => overlay.classList.add('show'));
+    }
+
+    window.openEditCinema = function(id) {
+        const c = cinemasList.find(x => x.id === id);
+        if(!c) return;
+
+        document.getElementById('cinemaModalTitle').textContent = 'Chỉnh sửa rạp';
+        document.getElementById('c_id').value = c.id;
+        document.getElementById('c_name').value = c.name || '';
+        document.getElementById('c_location').value = c.location || '';
+        document.getElementById('c_status').value = c.status || 'ACTIVE';
+
+        const overlay = document.getElementById('cinemaModalOverlay');
+        overlay.style.display = 'flex';
+        requestAnimationFrame(() => overlay.classList.add('show'));
+    }
+
+    window.closeCinemaModal = function() {
+        const overlay = document.getElementById('cinemaModalOverlay');
+        overlay.classList.remove('show');
+        setTimeout(() => overlay.style.display = 'none', 300);
+    }
+
+    document.getElementById('openCreateBtn').onclick = openCreateCinema;
+
+    document.getElementById('saveCinemaBtn').onclick = async () => {
+        const id = document.getElementById('c_id').value;
+        const name = document.getElementById('c_name').value;
+        const location = document.getElementById('c_location').value;
+        const status = document.getElementById('c_status').value;
+
+        if(!name) { showToast('Vui lòng nhập tên rạp', 'error'); return; }
+
+        const body = { name, location, status };
+        
+        try {
+            let r;
+            if(id) { // Edit
+                r = await fetch(api + '/' + id, { method:'PUT', headers: hdrs(), body: JSON.stringify(body) });
+            } else { // Create
+                r = await fetch(api, { method:'POST', headers: hdrs(), body: JSON.stringify(body) });
+            }
+
+            if(r.ok) {
+                showToast(id ? 'Cập nhật thành công' : 'Tạo rạp thành công');
+                closeCinemaModal();
+                loadList();
+            } else {
+                showToast('Thao tác thất bại', 'error');
+            }
+        } catch(e) { showToast('Lỗi kết nối', 'error'); }
+    };
+
+    window.delCinema = async function(id){ 
+        const ok = await window.adminConfirm({
+            title: 'Xác nhận xóa',
+            message: 'Bạn có chắc muốn xóa rạp này?',
+            confirmText: 'Xóa',
+            cancelText: 'Hủy',
+            danger: true
+        });
+        if(!ok) return; 
+        try {
+            const r = await fetch(api + '/' + id, { method:'DELETE', headers: hdrs() }); 
+            if (r.ok) {
+                showToast('Đã xóa rạp');
+                loadList(); 
+            } else {
+                showToast('Xóa thất bại', 'error');
+            }
+        } catch(e) { showToast('Lỗi kết nối', 'error'); }
+    }
+
+    // --- Room Manager Logic ---
+    let currentCinemaId = null;
+
+    window.openRoomManager = function(id, name){
+        currentCinemaId = id;
+        document.getElementById('roomModalTitle').textContent = 'Quản lý phòng chiếu - ' + name;
+        const overlay = document.getElementById('roomOverlay');
+        overlay.style.display = 'flex';
+        requestAnimationFrame(() => overlay.classList.add('show'));
+        loadRooms(id);
+    }
+
+    window.closeRoomModal = function() {
+        const overlay = document.getElementById('roomOverlay');
+        overlay.classList.remove('show');
+        setTimeout(() => overlay.style.display = 'none', 300);
+    }
+  
+    async function loadRooms(id){
+        try {
+            const r = await fetch(api + '/' + id + '/rooms', { headers: hdrs() });
+            const list = r.ok ? await r.json() : [];
+            const tb = document.getElementById('roomListBody');
+            tb.innerHTML = '';
+            if(list.length === 0) {
+                tb.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted)">Chưa có phòng nào</td></tr>`;
+            } else {
+                list.forEach(room => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${room.id}</td>
+                        <td style="font-weight:500">${room.name}</td>
+                        <td>${room.status === 'ACTIVE' ? '<span class="badge badge-success">Hoạt động</span>' : '<span class="badge badge-warning">Bảo trì</span>'}</td>
+                        <td style="text-align:right">
+                            <button class="btn btn-icon" style="color:var(--danger)" onclick="deleteRoom(${room.id})" title="Xóa">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tb.appendChild(tr);
+                });
+            }
+        } catch(e) { console.error(e); }
+    }
+  
+    document.getElementById('rm_addBtn').onclick = async () => {
+        if (!currentCinemaId) return;
+        const name = document.getElementById('rm_name').value;
+        const status = document.getElementById('rm_status').value;
+        if (!name) return showToast('Vui lòng nhập tên phòng', 'error');
+        
+        const body = { name, status };
+        try {
+            const r = await fetch(api + '/' + currentCinemaId + '/rooms', { method:'POST', headers: hdrs(), body: JSON.stringify(body) });
+            if (r.ok) {
+                document.getElementById('rm_name').value = '';
+                loadRooms(currentCinemaId);
+                showToast('Đã thêm phòng');
+            } else {
+                showToast('Thêm thất bại', 'error');
+            }
+        } catch(e) { showToast('Lỗi kết nối', 'error'); }
+    };
+
+    window.deleteRoom = async function(rid){
+        const ok = await window.adminConfirm({
+            title: 'Xác nhận xóa',
+            message: 'Bạn có chắc muốn xóa phòng này?',
+            confirmText: 'Xóa',
+            cancelText: 'Hủy',
+            danger: true
+        });
+        if(!ok) return;
+        try {
+            const r = await fetch(api + '/rooms/' + rid, { method:'DELETE', headers: hdrs() });
+            if(r.ok) {
+                loadRooms(currentCinemaId);
+                showToast('Đã xóa phòng');
+            }
+            else showToast('Xóa thất bại', 'error');
+        } catch(e) { showToast('Lỗi kết nối', 'error'); }
+    }
+
+    // Search filter
+    document.getElementById('q').addEventListener('input', () => {
+        const q = document.getElementById('q').value.trim().toLowerCase();
+        const filtered = q ? cinemasList.filter(c => ((c.name||'') + ' ' + (c.location||'')).toLowerCase().includes(q)) : cinemasList;
+        renderList(filtered);
+    });
+
+    // Initial load
+    loadList();
+
+</script>
+</body>
+</html>

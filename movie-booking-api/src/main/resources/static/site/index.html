@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Đặt vé xem phim</title>
+  <meta http-equiv="refresh" content="0;url=/site/home.html" />
+  <style>
+    :root{--bg:#0f172a;--panel:#0b1220;--border:#1f2937;--text:#e2e8f0;--muted:#94a3b8;--orange:#FF5A2E;--orange2:#fb923c;--vip:#DAA520;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--amber:#f59e0b}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto}
+    header{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #1f2937}
+    .brand{font-weight:700;color:#93c5fd}
+    .container{max-width:1100px;margin:0 auto;padding:20px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+    .card{background:#111827;border:1px solid #1f2937;border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .15s ease;box-shadow:0 6px 16px rgba(0,0,0,.35)}
+    .card:hover{transform:translateY(-2px)}
+    .card img{width:100%;height:230px;object-fit:cover;background:#0b1220}
+    .card .info{padding:10px}
+    .card .title{font-size:14px;color:#f1f5f9;line-height:1.4}
+    .section{margin-top:24px}
+    .section h2{font-size:18px;margin:0 0 10px;color:#93c5fd}
+    .flex{display:flex;gap:10px;flex-wrap:wrap}
+    .pill{background:var(--panel);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:8px 12px;cursor:pointer}
+    .pill.active{border-color:#60a5fa;color:#93c5fd}
+    .box{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+    .row{display:flex;gap:6px;align-items:center;margin:4px 0}
+    .seat{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:#111827;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px;cursor:pointer}
+    .seat.normal{background:#0b3620;border-color:#14532d;color:#e2e8f0}
+    .seat.vip{background:#3a2f00;border-color:#eab308;color:#fef08a}
+    .seat.selected{outline:2px solid var(--blue);color:#e2e8f0}
+    .seat.held{background:#3f2a00;border-color:var(--amber);color:#fde68a}
+    .seat.booked{background:#3b0a0a;border-color:#7f1d1d;color:#fecaca;cursor:not-allowed}
+    .actions{display:flex;gap:10px;align-items:center}
+    input,button{height:36px;border-radius:14px;border:1px solid var(--border);background:var(--panel);color:var(--text);padding:0 10px}
+    input:focus{outline:none;border-color:var(--orange)}
+    button.primary{background:linear-gradient(135deg, var(--orange), var(--orange2));border-color:var(--orange);color:#fff;box-shadow:0 8px 16px rgba(255,90,46,.3)}
+    .muted{color:var(--muted);font-size:13px}
+    .toast{position:fixed;bottom:16px;left:16px;background:#111827;border:1px solid #374151;color:#e2e8f0;padding:10px 12px;border-radius:8px}
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#0b1220;border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:8px 12px}
+    .hidden{display:none}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center}
+    .modal{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;width:360px}
+    canvas{background:#0b1220;border:1px solid var(--border);border-radius:12px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">Movie Booking</div>
+    <div class="actions">
+      <button id="btnHome">Trang chủ</button>
+      <button id="btnAccount">Tài khoản</button>
+      <span id="authStatus" class="muted">Chưa đăng nhập</span>
+      <input id="email" type="email" placeholder="Email" />
+      <input id="password" type="password" placeholder="Mật khẩu" />
+      <button id="btnLogin" class="primary">Đăng nhập</button>
+      <button id="btnRegister">Đăng ký</button>
+      <button id="btnLogout">Đăng xuất</button>
+    </div>
+  </header>
+  <div class="container">
+    <div class="section">
+      <h2>Phim đang chiếu</h2>
+      <div class="actions" style="margin-bottom:10px">
+        <input id="search" placeholder="Tìm kiếm phim" style="flex:1" />
+        <button id="btnSearch" class="primary">Tìm</button>
+      </div>
+      <div id="movies" class="grid"></div>
+    </div>
+
+    <div id="detail" class="section" style="display:none">
+      <h2>Chi tiết phim</h2>
+      <div id="detailContent" class="box"></div>
+      <div class="actions" style="margin-top:10px">
+        <button id="btnChooseShowtime" class="primary" style="background:#fb923c;border-color:#fb923c">Chọn suất</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Lịch chiếu</h2>
+      <div id="showtimes" class="flex"></div>
+    </div>
+
+    <div class="section">
+      <h2>Chọn ghế</h2>
+      <div id="seats" class="box"></div>
+      <div class="muted" id="legend">Ghế thường | Ghế VIP | Đã đặt</div>
+      <div id="quote" class="box" style="margin-top:10px"></div>
+      <div class="actions" style="margin-top:10px">
+        <input id="cardName" placeholder="Tên trên thẻ" />
+        <input id="cardNumber" placeholder="Số thẻ" />
+        <button id="btnBook" class="primary" style="background:#fb923c;border-color:#fb923c">Thanh toán & đặt vé</button>
+      </div>
+    </div>
+
+    <div id="account" class="section" style="display:none">
+      <h2>Tài khoản</h2>
+      <div class="box" id="profile"></div>
+      <div class="box" style="margin-top:10px">
+        <h3>Đổi mật khẩu</h3>
+        <div class="actions">
+          <input id="currentPassword" type="password" placeholder="Mật khẩu hiện tại" />
+          <input id="newPassword" type="password" placeholder="Mật khẩu mới" />
+          <button id="btnChangePassword" class="primary">Đổi mật khẩu</button>
+        </div>
+      </div>
+      <div class="box" style="margin-top:10px">
+        <h3>Lịch sử đặt vé</h3>
+        <div id="history"></div>
+      </div>
+    </div>
+  </div>
+  <div class="overlay" id="authOverlay">
+    <div class="modal">
+      <div class="actions" style="justify-content:space-between">
+        <div id="authTabs">
+          <button id="tabLogin" class="primary">Đăng nhập</button>
+          <button id="tabRegister">Đăng ký</button>
+          <button id="tabForgot">Quên mật khẩu</button>
+        </div>
+        <button id="closeAuth">Đóng</button>
+      </div>
+      <div id="authLogin">
+        <input id="authEmail" type="email" placeholder="Email" style="width:100%;margin-top:10px" />
+        <input id="authPassword" type="password" placeholder="Mật khẩu" style="width:100%;margin-top:10px" />
+        <button id="doLogin" class="primary" style="width:100%;margin-top:10px">Đăng nhập</button>
+      </div>
+      <div id="authRegister" class="hidden">
+        <input id="regEmail" type="email" placeholder="Email" style="width:100%;margin-top:10px" />
+        <input id="regPassword" type="password" placeholder="Mật khẩu" style="width:100%;margin-top:10px" />
+        <input id="regConfirm" type="password" placeholder="Xác nhận mật khẩu" style="width:100%;margin-top:10px" />
+        <button id="doRegister" class="primary" style="width:100%;margin-top:10px">Đăng ký</button>
+        <div class="muted" style="margin-top:8px">Chưa nhận email xác minh? <span id="resendOverlay" class="link">Gửi lại</span></div>
+      </div>
+      <div id="authForgot" class="hidden">
+        <input id="forgotEmail" type="email" placeholder="Email" style="width:100%;margin-top:10px" />
+        <button id="doForgot" class="primary" style="width:100%;margin-top:10px">Gửi yêu cầu</button>
+      </div>
+    </div>
+  </div>
+  
+
+  <div id="toast" class="toast" style="display:none"></div>
+
+  <script>
+    const API = {
+      movies: "/api/admin/movies/list?status=NOW_SHOWING",
+      showtimes: (movieId) => `/api/showtimes?movieId=${movieId}`,
+      seats: (showtimeId) => `/api/seats?showtimeId=${showtimeId}`,
+      quote: `/api/bookings/quote`,
+      booking: `/api/bookings`,
+      login: `/api/auth/login`,
+      register: `/api/auth/register`
+    };
+
+    const state = { token: null, email: null, movieId: null, showtimeId: null, seatCodes: [], seats: [], lastQuote: null };
+
+    function parseJwt(t){ try{ const p=t.split('.')[1]; const s=atob(p.replace(/-/g,'+').replace(/_/g,'/')); return JSON.parse(s); }catch(e){ return {}; } }
+    function setToken(t){ state.token = t; if(t){ localStorage.setItem("mb_token", t); const payload=parseJwt(t); state.email = payload.sub || payload.email || null; document.getElementById("authStatus").textContent = state.email ? ("Đăng nhập: "+state.email) : "Đã đăng nhập"; } else { localStorage.removeItem("mb_token"); state.email=null; document.getElementById("authStatus").textContent = "Chưa đăng nhập"; } }
+    setToken(localStorage.getItem("mb_token"));
+
+    function toast(msg){ const el = document.getElementById("toast"); el.textContent = msg; el.style.display = "block"; setTimeout(()=>{ el.style.display = "none"; }, 2500); }
+
+    async function fetchJson(url, opts={}){
+      const headers = { "Content-Type": "application/json" };
+      if(state.token) headers["Authorization"] = `Bearer ${state.token}`;
+      const res = await fetch(url, { headers, ...opts });
+      if(!res.ok){ const text = await res.text(); throw new Error(text || res.statusText); }
+      const ct = res.headers.get("content-type") || "";
+      if(ct.includes("application/json")) return res.json();
+      return res.text();
+    }
+
+    async function loadMovies(){
+      const list = await fetchJson(API.movies);
+      const root = document.getElementById("movies");
+      root.innerHTML = "";
+      const q = (document.getElementById('search').value||'').trim().toLowerCase();
+      list.filter(m => !q || (String(m.title||m.titleVi||m.titleEn||'').toLowerCase().includes(q))).forEach(m => {
+        const div = document.createElement("div");
+        div.className = "card";
+        const key = (m.tmdbId && m.tmdbId !== 0) ? m.tmdbId : m.id;
+        div.onclick = () => selectMovie(key, m.title || m.titleVi || m.titleEn);
+        const img = document.createElement("img");
+        img.src = m.posterUrl || (m.source === "TMDB" && m.posterUrl) || "";
+        const info = document.createElement("div");
+        info.className = "info";
+        const t = document.createElement("div");
+        t.className = "title";
+        t.textContent = m.title || m.titleVi || m.titleEn;
+        const rating = document.createElement("div");
+        rating.style.color = "#f59e0b";
+        rating.style.fontSize = "12px";
+        const r = 3 + (Math.abs(String(t.textContent).split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % 20)/10; // 3.0-5.0
+        rating.textContent = "★".repeat(5) + `  ${r.toFixed(1)}`;
+        info.appendChild(t);
+        info.appendChild(rating);
+        div.appendChild(img);
+        div.appendChild(info);
+        root.appendChild(div);
+      });
+    }
+
+    async function selectMovie(id, title){
+      state.movieId = id;
+      renderDetail(title);
+      const list = await fetchJson(API.showtimes(id));
+      const root = document.getElementById("showtimes");
+      root.innerHTML = "";
+      const groups = {};
+      list.forEach(st => {
+        const k = st.cinema || "Khác";
+        groups[k] = groups[k] || [];
+        groups[k].push(st);
+      });
+      Object.keys(groups).forEach(c => {
+        const h = document.createElement("div"); h.className = "muted"; h.textContent = c; root.appendChild(h);
+        groups[c].sort((a,b)=> {
+          const da = (typeof parseLocalDateTime==='function' ? parseLocalDateTime(a.startTime) : null) || new Date(a.startTime);
+          const db = (typeof parseLocalDateTime==='function' ? parseLocalDateTime(b.startTime) : null) || new Date(b.startTime);
+          return da - db;
+        });
+        groups[c].forEach(st => {
+          const p = document.createElement("div");
+          p.className = "pill";
+          p.textContent = formatDisplay(st.startTime) + " • " + (st.room || "");
+          p.onclick = () => {
+            const dest = `/site/seats.html?showtimeId=${st.id}&movieId=${state.movieId}`;
+            if(!requireAuth(dest)) return;
+            location.href = dest;
+          };
+          root.appendChild(p);
+        });
+      });
+      document.getElementById("seats").innerHTML = "";
+      document.getElementById("quote").innerHTML = "";
+      state.showtimeId = null; state.seatCodes = []; state.seats = [];
+      document.getElementById("detail").style.display = "block";
+    }
+
+    function renderDetail(title){
+      const el = document.getElementById("detailContent");
+      el.innerHTML = `<div class="muted">${title}</div>`;
+    }
+
+    async function selectShowtime(id){
+      state.showtimeId = id; state.seatCodes = []; state.seats = [];
+      const seats = await fetchJson(API.seats(id));
+      state.seats = seats;
+      renderSeats(seats);
+      document.getElementById("quote").innerHTML = "";
+      if (window.__seatTimer) clearInterval(window.__seatTimer);
+      window.__seatTimer = setInterval(async ()=>{
+        try{ const s = await fetchJson(API.seats(id)); state.seats = s; renderSeats(s); updateSelectedUI(); }catch(e){}
+      }, 5000);
+    }
+
+    function renderSeats(seats){
+      const byRow = {};
+      seats.forEach(s => { byRow[s.row] = byRow[s.row] || []; byRow[s.row].push(s); });
+      Object.keys(byRow).forEach(r => byRow[r].sort((a,b)=>a.number-b.number));
+      const root = document.getElementById("seats");
+      root.innerHTML = "";
+      Object.keys(byRow).sort().forEach(row => {
+        const line = document.createElement("div");
+        line.className = "row";
+        byRow[row].forEach(s => {
+          const btn = document.createElement("div");
+          const held = s.isHeld || (s.status === "HELD" && s.heldUntil);
+          const base = s.type === "VIP" ? " seat vip" : " seat normal";
+          btn.className = base + (s.status === "BOOKED" ? " booked" : (held ? " held" : ""));
+          btn.textContent = s.number;
+          btn.onclick = () => toggleSeat(s);
+          line.appendChild(btn);
+        });
+        root.appendChild(line);
+      });
+    }
+
+    function toggleSeat(s){
+      if(s.status === "BOOKED") return;
+      if(s.type === "VIP"){
+        const ok = confirm(`Ghế VIP ${s.code} có giá cao hơn. Xác nhận chọn?`);
+        if(!ok) return;
+      }
+      const idx = state.seatCodes.indexOf(s.code);
+      if(idx >= 0){ state.seatCodes.splice(idx,1); } else { state.seatCodes.push(s.code); }
+      updateSelectedUI();
+      if(state.seatCodes.length>0) updateQuote(); else document.getElementById("quote").innerHTML = "";
+    }
+
+    function updateSelectedUI(){
+      const root = document.getElementById("seats");
+      const codes = new Set(state.seatCodes);
+      let i = 0;
+      for(const row of root.children){
+        for(const node of row.children){
+          const seat = state.seats[i++];
+          if(!seat) continue;
+          const selected = codes.has(seat.code);
+          node.classList.toggle("selected", selected);
+        }
+      }
+    }
+
+    async function updateQuote(){
+      try{
+        const data = await fetchJson(API.quote, { method:"POST", body: JSON.stringify({ showtimeId: state.showtimeId, seats: state.seatCodes }) });
+        state.lastQuote = data;
+        const vipCount = state.seats.filter(s => state.seatCodes.includes(s.code) && s.type === "VIP").length;
+        const normalCount = state.seats.filter(s => state.seatCodes.includes(s.code) && s.type !== "VIP").length;
+        const el = document.getElementById("quote");
+        el.innerHTML = `Tổng: ${new Intl.NumberFormat('vi-VN').format(data.totalPrice)} ${data.currency} • VIP: ${vipCount} • Thường: ${normalCount}`;
+      }catch(e){ toast(e.message); }
+    }
+
+    async function book(){
+      if(!state.token){ toast("Vui lòng đăng nhập"); return; }
+      if(!state.showtimeId || state.seatCodes.length===0){ toast("Chọn suất chiếu và ghế"); return; }
+      const cardName = document.getElementById('cardName').value.trim();
+      const cardNumber = document.getElementById('cardNumber').value.trim();
+      if(cardName.length<2 || cardNumber.length<8){ toast('Thông tin thanh toán chưa hợp lệ'); return; }
+      try{
+        const data = await fetchJson(API.booking, { method:"POST", body: JSON.stringify({ showtimeId: state.showtimeId, seats: state.seatCodes }) });
+        toast("Đặt vé thành công");
+        const emailKey = state.email ? `booking_history:${state.email}` : null;
+        if(emailKey){
+          const arr = JSON.parse(localStorage.getItem(emailKey)||'[]');
+          arr.push({
+            id: data.id,
+            movieTitle: data.movieTitle,
+            startTime: data.startTime,
+            seats: data.seats,
+            totalPrice: data.totalPrice,
+            currency: data.currency,
+            code: data.code || ''
+          });
+          localStorage.setItem(emailKey, JSON.stringify(arr));
+        }
+        renderTicket(data);
+        selectShowtime(state.showtimeId);
+      }catch(e){ toast(e.message); }
+    }
+
+    async function showHome(){
+      document.getElementById("account").style.display = "none";
+      document.getElementById("detail").style.display = state.movieId ? "block" : "none";
+    }
+
+    async function showAccount(){
+      document.getElementById("account").style.display = "block";
+      await loadProfile();
+      await loadHistory();
+    }
+
+    async function loadProfile(){
+      if(!state.token){ document.getElementById("profile").textContent = "Vui lòng đăng nhập"; return; }
+      try{
+        const p = await fetchJson('/api/profile');
+        document.getElementById("profile").textContent = `Email: ${p.email} • Họ tên: ${p.fullName || p.name || ''}`;
+      }catch(e){ document.getElementById("profile").textContent = e.message; }
+    }
+
+    async function changePassword(){
+      try{
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        await fetchJson('/api/auth/change-password', { method:'POST', body: JSON.stringify({ currentPassword, newPassword }) });
+        toast('Đổi mật khẩu thành công');
+      }catch(e){ toast(e.message); }
+    }
+
+    async function loadHistory(){
+      try{
+        const list = await fetchJson('/api/bookings/my');
+        const root = document.getElementById('history');
+        root.innerHTML = '';
+        list.forEach(b => {
+          const d = document.createElement('div'); d.className='row';
+          d.textContent = `${b.movieTitle || ''} • ${new Date(b.startTime).toLocaleString('vi-VN')} • ${b.seats.join(', ')} • ${new Intl.NumberFormat('vi-VN').format(b.totalPrice)} VND`;
+          root.appendChild(d);
+        });
+      }catch(e){ document.getElementById('history').textContent = e.message; }
+    }
+
+    async function login(){
+      try{
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const res = await fetchJson(API.login, { method:"POST", body: JSON.stringify({ email, password }) });
+        setToken(res.token);
+        toast("Đăng nhập thành công");
+      }catch(e){ toast(e.message); }
+    }
+
+    async function register(){
+      try{
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const name = email.split('@')[0] || "User";
+        const res = await fetchJson(API.register, { method:"POST", body: JSON.stringify({ email, password, name }) });
+        setToken(res.token);
+        toast("Đăng ký thành công");
+      }catch(e){ toast(e.message); }
+    }
+
+    function logout(){ setToken(null); toast("Đã đăng xuất"); }
+
+    document.getElementById("btnLogin").onclick = login;
+    document.getElementById("btnRegister").onclick = register;
+    document.getElementById("btnLogout").onclick = logout;
+    document.getElementById("btnBook").onclick = book;
+    document.getElementById("btnHome").onclick = showHome;
+    document.getElementById("btnAccount").onclick = showAccount;
+    document.getElementById("btnChooseShowtime").onclick = () => document.getElementById('showtimes').scrollIntoView({ behavior:'smooth' });
+    document.getElementById('btnSearch').onclick = () => loadMovies().catch(e => toast(e.message));
+    document.getElementById('navHome').onclick = () => window.scrollTo({top:0,behavior:'smooth'});
+    document.getElementById('navSearch').onclick = () => document.getElementById('search').focus();
+    document.getElementById('navCategories').onclick = () => { document.getElementById('search').value=''; loadMovies(); };
+    document.getElementById('navAccount').onclick = showAccount;
+    document.getElementById('btnLogin').onclick = () => { document.getElementById('authOverlay').style.display='flex'; setAuthTab('login'); };
+    document.getElementById('btnRegister').onclick = () => { document.getElementById('authOverlay').style.display='flex'; setAuthTab('register'); };
+    document.getElementById('closeAuth').onclick = () => { document.getElementById('authOverlay').style.display='none'; };
+    document.getElementById('tabLogin').onclick = () => setAuthTab('login');
+    document.getElementById('tabRegister').onclick = () => setAuthTab('register');
+    document.getElementById('tabForgot').onclick = () => setAuthTab('forgot');
+    document.getElementById('doLogin').onclick = async ()=>{
+      const email = document.getElementById('authEmail').value; const password = document.getElementById('authPassword').value; if(!email||!password){ toast('Nhập email và mật khẩu'); return; }
+      try{ const res = await fetchJson(API.login, { method:'POST', body: JSON.stringify({ email, password }) }); setToken(res.token); document.getElementById('authOverlay').style.display='none'; toast('Đăng nhập thành công, chào mừng bạn đến với Movie Booking'); loadProfile(); loadHistory(); }
+      catch(e){ toast(e.message); }
+    };
+    document.getElementById('doRegister').onclick = async ()=>{
+      const email = document.getElementById('regEmail').value; const password = document.getElementById('regPassword').value; const confirm = document.getElementById('regConfirm').value; if(!email||!password||password!==confirm){ toast('Xác thực đầu vào chưa hợp lệ'); return; }
+      try{ const name = (document.getElementById('regName')? document.getElementById('regName').value : (email.split('@')[0]||'User')); await fetchJson(API.register, { method:'POST', body: JSON.stringify({ email, password, name }) }); setAuthTab('login'); toast('Đăng ký thành công, vui lòng kiểm tra email để xác minh tài khoản'); }
+      catch(e){ toast(e.message); }
+    };
+    document.getElementById('doForgot').onclick = async ()=>{
+      const email = document.getElementById('forgotEmail').value; if(!email){ toast('Nhập email'); return; }
+      try{ await fetchJson('/api/auth/forgot', { method:'POST', body: JSON.stringify({ email }) }); toast('Đã gửi yêu cầu qua email'); }
+      catch(e){ toast(e.message); }
+    };
+    document.getElementById('resendOverlay').onclick = async ()=>{
+      const em = document.getElementById('regEmail').value; if(!em){ toast('Nhập email để gửi lại xác minh'); return; }
+      try{ await fetchJson('/api/auth/resend-verification', { method:'POST', body: JSON.stringify({ email: em }) }); toast('Đã gửi lại email xác minh (nếu tài khoản chưa được xác minh)'); }
+      catch(e){ toast(e.message); }
+    };
+    document.getElementById('btnChangePassword').onclick = changePassword;
+    function setAuthTab(t){ document.getElementById('authLogin').classList.toggle('hidden', t!=='login'); document.getElementById('authRegister').classList.toggle('hidden', t!=='register'); document.getElementById('authForgot').classList.toggle('hidden', t!=='forgot'); }
+
+    loadTicketFromHash();
+    loadMovies().catch(e => toast(e.message));
+  </script>
+</body>
+</html>
+    function renderTicket(b){
+      const box = document.createElement('div'); box.className='box';
+      const dt = new Date(b.startTime);
+      const hh = String(dt.getHours()).padStart(2,'0');
+      const mm = String(dt.getMinutes()).padStart(2,'0');
+      const dd = String(dt.getDate()).padStart(2,'0');
+      const MM = String(dt.getMonth()+1).padStart(2,'0');
+      const yyyy = dt.getFullYear();
+      const timeText = `${hh}:${mm} ${dd}/${MM}/${yyyy}`;
+      box.innerHTML = `Mã: ${b.code || ''} • ${timeText} • ${b.cinema || ''} • ${b.room || ''} • Ghế: ${b.seats.join(', ')}`;
+      document.querySelector('.container').prepend(box);
+      const c = document.createElement('canvas'); c.width=240; c.height=80; const g=c.getContext('2d'); g.fillStyle='#fff'; for(let i=0;i<String(b.code||'TICKET').length;i++){ const h=(String(b.code).charCodeAt(i)||65)%60; g.fillRect(10+i*10,10,6,10+h); } box.appendChild(c);
+      location.hash = `ticket=${b.id}`;
+    }
+
+    async function loadTicketFromHash(){
+      const m = location.hash.match(/ticket=(\d+)/); if(!m) return;
+      try{
+        const list = await fetchJson('/api/bookings/my');
+        const b = list.find(x => String(x.id) === m[1]); if(b) renderTicket(b);
+      }catch(e){}
+    }

@@ -34,4 +34,7 @@ public class Booking {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "code", unique = true)
+    private String code;
 }

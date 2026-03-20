@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quản lý ghế | Admin</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #ec4899;
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      
+      --seat-avail: #334155;
+      --seat-booked: #ef4444;
+      --seat-held: #f59e0b;
+      --seat-vip: #8b5cf6;
+    }
+
+    * { box-sizing: border-box; outline: none; }
+    
+    /* Global Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.2); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.4); }
+
+    body { 
+      margin: 0; 
+      margin-left: 240px;
+      background: var(--bg-dark); 
+      color: var(--text-main); 
+      font-family: 'Plus Jakarta Sans', sans-serif; 
+      font-size: 14px; 
+      height: 100vh; 
+      overflow: hidden; 
+    }
+
+    /* Layout */
+    .layout { display: flex; height: 100vh; }
+    
+    /* Sidebar Area (Left) */
+    .sidebar-area {
+      width: 280px;
+      background: #0f172a;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease;
+      z-index: 20;
+    }
+    
+    .sb-header {
+      padding: 20px;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    .sb-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0 0 16px 0;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .search-box {
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .search-box i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+    .search-box input {
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid var(--border);
+      padding: 8px 8px 8px 32px;
+      border-radius: 6px;
+      color: var(--text-main);
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+    .search-box input:focus {
+      border-color: var(--primary);
+      background: #253045;
+    }
+    
+    .date-filter input {
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 12px;
+    }
+
+    .st-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 12px 20px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .cinema-group-title {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin: 20px 0 8px 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.5px;
+    }
+    .cinema-group-title i { font-size: 10px; opacity: 0.8; }
+    
+    .st-card {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .st-card:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .st-card.active {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+    
+    .st-info {
+      flex: 1;
+      overflow: hidden;
+    }
+    
+    .st-movie {
+      font-weight: 500;
+      font-size: 13px;
+      margin-bottom: 4px;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .st-card.active .st-movie { color: #fff; font-weight: 600; }
+    
+    .st-room {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .st-time-badge {
+      font-family: 'Plus Jakarta Sans', monospace;
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      min-width: 50px;
+      text-align: center;
+    }
+    .st-card.active .st-time-badge {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    
+    /* Main Content */
+    .main-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .content-wrapper {
+      background: var(--bg-card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    
+    .content-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(30, 41, 59, 0.5);
+    }
+    
+    .header-info h3 { margin: 0 0 4px 0; font-size: 18px; }
+    .header-info p { margin: 0; font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
+    
+    .view-switch {
+      background: var(--bg-dark);
+      padding: 4px;
+      border-radius: 8px;
+      display: flex;
+      gap: 4px;
+    }
+    .view-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .view-btn:hover { color: #fff; }
+    .view-btn.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .content-body {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    /* Table View */
+    .table-container {
+      height: 100%;
+      overflow: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      text-align: left;
+      padding: 14px 20px;
+      color: var(--text-muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg-card);
+      z-index: 5;
+    }
+    td {
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: var(--text-main);
+    }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    
+    .badge {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .badge-avail { background: rgba(51, 65, 85, 0.5); color: #cbd5e1; }
+    .badge-booked { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    .badge-held { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+    .badge-vip { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+
+    /* Map View */
+    .map-container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      overflow: auto;
+      background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+    }
+    
+    .screen-wrapper {
+      margin-bottom: 60px;
+      perspective: 500px;
+      width: 60%;
+      max-width: 600px;
+    }
+    .screen {
+      height: 60px;
+      width: 100%;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent);
+      transform: rotateX(-30deg) scale(0.8);
+      box-shadow: 0 20px 50px rgba(255,255,255,0.1);
+      border-top: 2px solid rgba(255,255,255,0.3);
+      border-radius: 8px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .screen::after {
+      content: 'MÀN HÌNH';
+      font-size: 12px;
+      letter-spacing: 4px;
+      color: rgba(255,255,255,0.4);
+      font-weight: 600;
+    }
+    
+    .seat-grid {
+      display: grid;
+      gap: 8px;
+      margin: 0 auto;
+    }
+    .seat-node {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #fff;
+      cursor: default;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .seat-node::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.1);
+    }
+    
+    .seat-node.normal { background: var(--seat-avail); color: #94a3b8; }
+    .seat-node.vip { 
+      background: var(--seat-vip); 
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+    }
+    .seat-node.booked { 
+      background: var(--seat-booked); 
+      opacity: 0.5; 
+      box-shadow: none;
+    }
+    .seat-node.held { 
+      background: var(--seat-held); 
+      opacity: 0.6; 
+    }
+    
+    .legend {
+      display: flex;
+      gap: 24px;
+      margin-top: 40px;
+      padding: 12px 24px;
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 50px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); }
+    .dot { width: 12px; height: 12px; border-radius: 4px; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+    /* Empty State */
+    .empty-state {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      gap: 16px;
+    }
+    .empty-state i { font-size: 48px; opacity: 0.2; }
+    
+    /* Mobile Toggle */
+    .mobile-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      width: 36px; 
+      height: 36px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-right: 12px;
+      transition: all 0.2s;
+    }
+    .mobile-toggle:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .sidebar-area { position: absolute; height: 100%; transform: translateX(-100%); box-shadow: 10px 0 20px rgba(0,0,0,0.5); }
+      .sidebar-area.show { transform: translateX(0); }
+      .main-area { padding: 16px; }
+      .mobile-toggle { display: flex; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar-area" id="sidebar">
+    <div class="sb-header">
+      <h2 class="sb-title"><i class="fas fa-couch"></i> Quản lý ghế</h2>
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input id="searchMovie" placeholder="Tìm tên phim..." autocomplete="off" />
+      </div>
+      <div class="date-filter">
+        <input id="filterDate" type="date" />
+      </div>
+    </div>
+    
+    <div id="showtimeList" class="st-list">
+      <!-- Showtimes injected here -->
+      <div class="empty-state" style="height:200px">
+        <i class="fas fa-circle-notch fa-spin"></i>
+        <span>Đang tải...</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-area">
+    <div class="content-wrapper">
+      <div class="content-header">
+        <div style="display:flex; align-items:center">
+          <button class="mobile-toggle" onclick="toggleShowtimeList()">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="header-info">
+            <h3 id="detailTitle">Chọn suất chiếu</h3>
+            <p id="detailSub"><i class="fas fa-arrow-left"></i> Vui lòng chọn suất chiếu từ danh sách bên trái</p>
+          </div>
+        </div>
+        
+        <div class="view-switch">
+          <button id="btnViewTable" class="view-btn active" onclick="setView('table')">
+            <i class="fas fa-list"></i> Danh sách
+          </button>
+          <button id="btnViewMap" class="view-btn" onclick="setView('map')">
+            <i class="fas fa-th"></i> Sơ đồ
+          </button>
+        </div>
+      </div>
+      
+      <div class="content-body">
+        <!-- Table View -->
+        <div id="viewTable" class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Mã ghế</th>
+                <th>Hàng</th>
+                <th>Số</th>
+                <th>Loại</th>
+                <th>Giá vé</th>
+                <th>Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody id="seatTableBody">
+              <tr>
+                <td colspan="7">
+                  <div class="empty-state" style="padding: 60px">
+                    <i class="fas fa-inbox"></i>
+                    <span>Chưa có dữ liệu</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Map View -->
+        <div id="viewMap" class="map-container" style="display:none">
+          <div class="screen-wrapper">
+            <div class="screen"></div>
+          </div>
+          
+          <div id="seatGrid" class="seat-grid">
+             <div class="empty-state">
+               <i class="fas fa-film"></i>
+               <span>Chọn suất chiếu để xem sơ đồ ghế</span>
+             </div>
+          </div>
+          
+          <div class="legend">
+            <div class="legend-item">
+              <div class="dot" style="background:var(--seat-avail)"></div> Thường
+            </div>
+            <div class="legend-item">
+              <div class="dot" style="background:var(--seat-vip)"></div> VIP
+            </div>
+            <div class="legend-item">
+              <div class="dot" style="background:var(--seat-booked)"></div> Đã bán
+            </div>
+            <div class="legend-item">
+              <div class="dot" style="background:var(--seat-held)"></div> Đang giữ
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;"></div>
+
+<script src="/admin/sidebar.js"></script>
+<script>
+  const apiBase = window.location.origin + '/api';
+  let token = localStorage.getItem('admin_token') || '';
+  const hdrs = () => token ? { Authorization: 'Bearer ' + token, 'Content-Type':'application/json' } : { 'Content-Type':'application/json' };
+  const el = id => document.getElementById(id);
+
+  let allShowtimes = [];
+  let currentShowtimeId = null;
+  let currentShowtimePrice = 0;
+  let currentShowtimePriceVip = 0;
+
+  function toggleShowtimeList() {
+    el('sidebar').classList.toggle('show');
+  }
+
+  // Toast Function
+  function showToast(msg, type='success') {
+    const container = el('toastContainer');
+    const toast = document.createElement('div');
+    const colors = { success: '#10b981', error: '#ef4444', warning: '#f59e0b' };
+    const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle' };
+    
+    toast.style.cssText = `
+      background: #1e293b;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border-left: 4px solid ${colors[type]};
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 300px;
+      transform: translateX(100%);
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      font-size: 14px;
+    `;
+    
+    toast.innerHTML = `
+      <i class="fas ${icons[type]}" style="color:${colors[type]}; font-size: 16px;"></i>
+      <span style="flex:1">${msg}</span>
+      <i class="fas fa-times" style="cursor:pointer; opacity: 0.5; font-size:12px" onclick="this.parentElement.remove()"></i>
+    `;
+    
+    container.appendChild(toast);
+    requestAnimationFrame(() => toast.style.transform = 'translateX(0)');
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(100%)';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  // --- Init ---
+  (async function init(){
+    if(!token) { location.href='/admin/login.html'; return; }
+    
+    // Default date = Today
+    const d = new Date();
+    el('filterDate').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    
+    await loadShowtimes();
+    
+    // Events
+    el('searchMovie').addEventListener('input', renderList);
+    el('filterDate').addEventListener('change', renderList);
+  })();
+
+  // --- Logic ---
+  async function loadShowtimes(){
+    try {
+      const r = await fetch(apiBase + '/admin/showtimes', { headers: hdrs() });
+      if(!r.ok) throw new Error('Failed');
+      allShowtimes = await r.json();
+      
+      // Sort: Newest first
+      allShowtimes.sort((a,b) => new Date(b.startTime) - new Date(a.startTime));
+      
+      renderList();
+    } catch(e) {
+      el('showtimeList').innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>Lỗi tải dữ liệu</span>
+        </div>
+      `;
+      showToast('Không thể tải danh sách suất chiếu', 'error');
+    }
+  }
+
+  function renderList(){
+    const term = el('searchMovie').value.toLowerCase();
+    const dateVal = el('filterDate').value;
+    const list = el('showtimeList');
+    list.innerHTML = '';
+
+    const filtered = allShowtimes.filter(s => {
+      // Filter by movie name
+      const title = (s.movieTitle || '').toLowerCase();
+      if(term && !title.includes(term)) return false;
+      
+      // Filter by date
+      if(dateVal) {
+        const d = new Date(s.startTime);
+        const k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        if(k !== dateVal) return false;
+      }
+      return true;
+    });
+
+    if(filtered.length === 0) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-search"></i>
+          <span>Không tìm thấy suất chiếu</span>
+        </div>
+      `;
+      return;
+    }
+
+    // Group by Cinema
+    const grouped = {};
+    filtered.forEach(s => {
+      const c = s.cinema || 'Khác';
+      if(!grouped[c]) grouped[c] = [];
+      grouped[c].push(s);
+    });
+
+    Object.keys(grouped).forEach(cinemaName => {
+      // Add Cinema Header
+      const header = document.createElement('div');
+      header.className = 'cinema-group-title';
+      header.innerHTML = `<i class="fas fa-building"></i> ${cinemaName}`;
+      list.appendChild(header);
+
+      // Add Showtimes
+      grouped[cinemaName].forEach(s => {
+        const item = document.createElement('div');
+        item.className = 'st-card' + (currentShowtimeId === s.id ? ' active' : '');
+        item.onclick = () => selectShowtime(s, item);
+        
+        const time = new Date(s.startTime);
+        const timeStr = `${String(time.getHours()).padStart(2,'0')}:${String(time.getMinutes()).padStart(2,'0')}`;
+        
+        item.innerHTML = `
+          <div class="st-info">
+            <div class="st-movie" title="${s.movieTitle}">${s.movieTitle}</div>
+            <div class="st-room"><i class="fas fa-door-open" style="font-size:10px"></i> ${s.room || 'N/A'}</div>
+          </div>
+          <div class="st-time-badge">${timeStr}</div>
+        `;
+        list.appendChild(item);
+      });
+    });
+  }
+
+  async function selectShowtime(s, cardEl){
+    currentShowtimeId = s.id;
+    currentShowtimePrice = s.price || 0;
+    currentShowtimePriceVip = s.priceVip || s.price || 0;
+    
+    // Update active state
+    document.querySelectorAll('.st-card').forEach(c => c.classList.remove('active'));
+    if(cardEl) cardEl.classList.add('active');
+    
+    // Update Header
+    const time = new Date(s.startTime);
+    const dateStr = `${time.getDate()}/${time.getMonth()+1}/${time.getFullYear()} ${String(time.getHours()).padStart(2,'0')}:${String(time.getMinutes()).padStart(2,'0')}`;
+    
+    el('detailTitle').innerHTML = `${s.movieTitle}`;
+    el('detailSub').innerHTML = `
+      <span style="color:var(--primary)">${s.cinema}</span>
+      <span style="margin:0 8px">•</span>
+      <span>${s.room}</span>
+      <span style="margin:0 8px">•</span>
+      <span>${dateStr}</span>
+    `;
+    
+    // Load Seats
+    await loadSeats(s.id);
+  }
+
+  async function loadSeats(sid){
+    const loadingHtml = `
+      <tr><td colspan="7">
+        <div class="empty-state" style="padding:40px">
+          <i class="fas fa-spinner fa-spin"></i>
+          <span>Đang tải danh sách ghế...</span>
+        </div>
+      </td></tr>
+    `;
+    el('seatTableBody').innerHTML = loadingHtml;
+    el('seatGrid').innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Đang tải sơ đồ...</span>
+      </div>
+    `;
+    
+    try {
+      const r = await fetch(apiBase + '/seats?showtimeId=' + sid);
+      const seats = await r.json();
+      
+      renderSeatTable(seats);
+      renderSeatMap(seats);
+    } catch(e) {
+      el('seatTableBody').innerHTML = `
+        <tr><td colspan="7">
+          <div class="empty-state" style="color:var(--danger)">
+            <i class="fas fa-times-circle"></i>
+            <span>Lỗi tải dữ liệu ghế</span>
+          </div>
+        </td></tr>
+      `;
+      showToast('Lỗi khi tải dữ liệu ghế', 'error');
+    }
+  }
+
+  function renderSeatTable(seats){
+    const tb = el('seatTableBody');
+    tb.innerHTML = '';
+    
+    if(!seats || seats.length === 0){
+      tb.innerHTML = `
+        <tr><td colspan="7">
+          <div class="empty-state">
+            <i class="fas fa-chair"></i>
+            <span>Chưa có ghế nào được tạo cho phòng này</span>
+          </div>
+        </td></tr>
+      `;
+      return;
+    }
+
+    seats.sort((a,b) => (a.row || '').localeCompare(b.row || '') || (a.number - b.number));
+
+    seats.forEach(s => {
+      const tr = document.createElement('tr');
+      const isBooked = s.isBooked || s.status === 'BOOKED';
+      const isHeld = s.isHeld || s.status === 'HELD';
+      
+      let badgeClass = 'badge-avail';
+      let statusText = 'Trống';
+      
+      if(isBooked) { badgeClass = 'badge-booked'; statusText = 'Đã bán'; }
+      else if(isHeld) { badgeClass = 'badge-held'; statusText = 'Đang giữ'; }
+      else if(s.type === 'VIP') { badgeClass = 'badge-vip'; statusText = 'VIP'; }
+      
+      let price = s.price || 0;
+      if(price === 0) {
+          price = (s.type === 'VIP') ? currentShowtimePriceVip : currentShowtimePrice;
+      }
+
+      tr.innerHTML = `
+        <td>#${s.id}</td>
+        <td style="font-weight:700; color:var(--primary)">${s.code}</td>
+        <td>${s.row}</td>
+        <td>${s.number}</td>
+        <td>${s.type}</td>
+        <td>${price.toLocaleString('vi-VN')} đ</td>
+        <td><span class="badge ${badgeClass}">${statusText}</span></td>
+      `;
+      tb.appendChild(tr);
+    });
+  }
+
+  function renderSeatMap(seats){
+    const grid = el('seatGrid');
+    grid.innerHTML = '';
+    
+    if(!seats || seats.length === 0) return;
+
+    const maxCol = Math.max(...seats.map(s => s.colIndex || 0)) + 1;
+    grid.style.gridTemplateColumns = `repeat(${Math.max(6, maxCol)}, 1fr)`;
+    
+    // Sort for visual grid
+    const sorted = [...seats].sort((a,b) => (a.rowIndex - b.rowIndex) || (a.colIndex - b.colIndex));
+
+    sorted.forEach(s => {
+      const node = document.createElement('div');
+      node.className = 'seat-node';
+      node.textContent = s.code;
+      
+      const isBooked = s.isBooked || s.status === 'BOOKED';
+      const isHeld = s.isHeld || s.status === 'HELD';
+
+      if(isBooked) node.classList.add('booked');
+      else if(isHeld) node.classList.add('held');
+      else if(s.type === 'VIP') node.classList.add('vip');
+      else node.classList.add('normal');
+      
+      let price = s.price || 0;
+      if(price === 0) {
+          price = (s.type === 'VIP') ? currentShowtimePriceVip : currentShowtimePrice;
+      }
+      
+      node.title = `Ghế ${s.code} - ${s.type}\nGiá: ${price.toLocaleString()}đ`;
+      grid.appendChild(node);
+    });
+  }
+
+  // View Switcher
+  window.setView = function(mode){
+    el('viewTable').style.display = mode==='table' ? 'block' : 'none';
+    el('viewMap').style.display = mode==='map' ? 'flex' : 'none'; // Flex for centering
+    
+    el('btnViewTable').className = 'view-btn' + (mode==='table' ? ' active' : '');
+    el('btnViewMap').className = 'view-btn' + (mode==='map' ? ' active' : '');
+  }
+</script>
+</body>
+</html>

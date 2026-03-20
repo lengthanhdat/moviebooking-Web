@@ -1,7 +1,9 @@
 package com.movie.movie_booking_api.controller;
 
 import com.movie.movie_booking_api.repository.SeatRepository;
+import com.movie.movie_booking_api.repository.ShowTimeRepository;
 import com.movie.movie_booking_api.entity.Seat;
+import com.movie.movie_booking_api.entity.ShowTime;
 import com.movie.movie_booking_api.entity.SeatStatus;
 import com.movie.movie_booking_api.entity.SeatType;
 import lombok.RequiredArgsConstructor;
@@ -24,16 +26,32 @@ import java.util.stream.Collectors;
 public class SeatController {
 
     private final SeatRepository seatRepository;
+    private final ShowTimeRepository showTimeRepository;
 
     @GetMapping
     public ResponseEntity<?> getSeats(@RequestParam("showtimeId") Long showtimeId) {
+        ShowTime st = showTimeRepository.findById(showtimeId)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Showtime not found"));
+        if (Boolean.TRUE.equals(st.getDisabled()) || "CANCELLED".equalsIgnoreCase(st.getStatus()) || "FINISHED".equalsIgnoreCase(st.getStatus())) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT, "Showtime disabled");
+        }
+        if (st.getStartTime() != null) {
+            Integer dur = st.getDurationMinutes();
+            int minutes = (dur == null || dur <= 0) ? 0 : dur;
+            java.time.LocalDateTime end = st.getStartTime().plusMinutes(minutes);
+            if (end.isBefore(java.time.LocalDateTime.now())) {
+                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT, "Showtime finished");
+            }
+        }
         List<Seat> seats = seatRepository.findByShowtimeId(showtimeId);
+        
         java.time.LocalDateTime now = java.time.LocalDateTime.now();
         boolean changed = false;
         for (Seat s : seats) {
             if (s.getStatus() == SeatStatus.HELD && s.getHeldUntil() != null && s.getHeldUntil().isBefore(now)) {
                 s.setStatus(SeatStatus.AVAILABLE);
                 s.setHeldUntil(null);
+                s.setHeldBy(null);
                 changed = true;
             }
         }
@@ -48,8 +66,20 @@ public class SeatController {
                     m.put("row", seat.getRow());
                     m.put("number", seat.getNumber());
                     m.put("type", seat.getType() == null ? null : seat.getType().name());
-                    m.put("price", seat.getPrice());
+                    
+                    Integer price = seat.getPrice();
+                    if ((price == null || price == 0) && st != null) {
+                         if (seat.getType() == SeatType.VIP && st.getPriceVip() != null) {
+                             price = st.getPriceVip();
+                         } else {
+                             price = st.getPrice();
+                         }
+                    }
+                    m.put("price", price == null ? 0 : price);
+                    
                     m.put("status", seat.getStatus().name());
+                    m.put("isBooked", seat.getStatus() == SeatStatus.BOOKED);
+                    m.put("isHeld", seat.getStatus() == SeatStatus.HELD);
                     m.put("rowIndex", seat.getRowIndex());
                     m.put("colIndex", seat.getColIndex());
                     m.put("section", seat.getSection());
@@ -69,7 +99,7 @@ public class SeatController {
         Long showtimeId = ((Number) stIdObj).longValue();
 
         @SuppressWarnings("unchecked")
-        List<String> rows = (List<String>) body.getOrDefault("rows", java.util.List.of("A", "B", "C", "D"));
+        List<String> rows = (List<String>) body.getOrDefault("rows", java.util.List.of("A", "B", "C", "D", "E", "F"));
         int cols = ((Number) body.getOrDefault("cols", 8)).intValue();
 
         Set<String> existing = seatRepository.findByShowtimeId(showtimeId)

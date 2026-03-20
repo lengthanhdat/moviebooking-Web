@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>POS | Bán vé tại quầy</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #ec4899;
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      
+      --seat-avail: #334155;
+      --seat-booked: #ef4444;
+      --seat-held: #f59e0b;
+      --seat-vip: #8b5cf6;
+      --seat-sel: #eab308;
+    }
+    
+    * { box-sizing: border-box; outline: none; }
+    body { 
+      margin: 0; 
+      margin-left: 240px;
+      background: var(--bg-dark); 
+      color: var(--text-main); 
+      font-family: 'Plus Jakarta Sans', sans-serif; 
+      font-size: 14px; 
+      height: 100vh; 
+      overflow: hidden; 
+    }
+    
+    .layout { 
+      display: grid; 
+      grid-template-columns: 320px 1fr 340px; 
+      height: 100vh; 
+    }
+    
+    /* Left Col: Selection */
+    .col-left {
+      background: #0f172a;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+    }
+    
+    .header-logo {
+      padding: 16px 20px;
+      font-size: 18px;
+      font-weight: 800;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #fff;
+    }
+    
+    /* Mobile Toggle */
+    .mobile-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      width: 32px; 
+      height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-right: 8px;
+      transition: all 0.2s;
+    }
+    .mobile-toggle:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    
+    .selection-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 12px 20px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--primary);
+      font-weight: 800;
+      margin: 20px 0 10px 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      opacity: 0.5;
+    }
+    
+    /* Cinema List */
+    .cinema-group { margin-bottom: 12px; }
+    .cinema-name {
+      font-weight: 700;
+      color: #fff;
+      font-size: 12px;
+      margin-bottom: 8px;
+      padding-left: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cinema-name i { color: var(--warning); font-size: 10px; }
+    
+    .movie-btn {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .movie-btn:hover {
+      background: rgba(255,255,255,0.03);
+      color: var(--text-main);
+    }
+    .movie-btn.active {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: rgba(99, 102, 241, 0.3);
+      color: #fff;
+      font-weight: 600;
+    }
+    .movie-btn i { font-size: 14px; opacity: 0.7; }
+    
+    /* Showtime Grid inside Movie */
+    .movie-showtimes {
+      display: none;
+      padding: 0 0 12px 12px;
+      animation: slideDown 0.2s ease-out;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .showtime-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 8px;
+    }
+    .time-chip {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      padding: 6px 4px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .time-chip:hover { border-color: var(--primary); background: rgba(99, 102, 241, 0.1); }
+    .time-chip.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+    .time-chip .time { font-weight: 700; font-size: 13px; font-family: monospace; }
+    .time-chip .room { font-size: 10px; opacity: 0.7; }
+
+
+    /* Middle Col: Map */
+    .col-mid {
+      background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    
+    .map-header {
+      padding: 16px 24px;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      z-index: 5;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .current-info { font-weight: 600; color: var(--text-main); }
+    .current-sub { font-size: 12px; color: var(--text-muted); }
+    
+    .map-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+      padding: 80px 20px 20px 20px;
+    }
+    
+    .screen-container {
+      perspective: 600px;
+      margin-bottom: 60px;
+      width: 70%;
+      max-width: 600px;
+    }
+    .screen {
+      height: 40px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent);
+      transform: rotateX(-20deg);
+      box-shadow: 0 20px 40px rgba(255,255,255,0.1);
+      border-top: 2px solid rgba(255,255,255,0.4);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.4);
+      font-size: 10px;
+      letter-spacing: 4px;
+      font-weight: 700;
+    }
+    
+    .seat-grid { display: grid; gap: 6px; }
+    .seat-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: none;
+      font-size: 10px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+      color: #fff;
+    }
+    .seat-btn:hover:not(:disabled) { transform: scale(1.1); z-index: 2; }
+    .seat-btn.normal { background: var(--seat-avail); color: #94a3b8; }
+    .seat-btn.vip { background: var(--seat-vip); border: 1px solid rgba(255,255,255,0.2); }
+    .seat-btn.booked { background: var(--seat-booked); opacity: 0.4; cursor: not-allowed; }
+    .seat-btn.held { background: var(--seat-held); opacity: 0.5; cursor: not-allowed; }
+    .seat-btn.selected { 
+      background: var(--seat-sel); 
+      color: #000; 
+      box-shadow: 0 0 15px rgba(234, 179, 8, 0.5); 
+      transform: scale(1.15);
+      font-weight: 800;
+      z-index: 10;
+    }
+    
+    .legend {
+      margin-top: 40px;
+      display: flex;
+      gap: 16px;
+      background: rgba(0,0,0,0.3);
+      padding: 10px 20px;
+      border-radius: 20px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); }
+    .dot { width: 10px; height: 10px; border-radius: 3px; }
+
+    /* Right Col: Checkout */
+    .col-right {
+      background: #111827;
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+    }
+    
+    .checkout-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    .ticket-header {
+      text-align: center;
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 16px;
+      margin-bottom: 4px;
+    }
+    .ticket-title { font-size: 16px; font-weight: 700; color: var(--text-main); }
+    .ticket-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    
+    .form-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+    .form-input {
+      width: 100%;
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 6px;
+      color: var(--text-main);
+      font-size: 13px;
+    }
+    .form-input:focus { border-color: var(--primary); }
+    .form-input[readonly] { opacity: 0.7; cursor: default; }
+    
+    .summary-box {
+      background: rgba(15, 23, 42, 0.5);
+      padding: 12px;
+      border-radius: 8px;
+    }
+    .sum-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; color: var(--text-muted); }
+    .sum-row.total { color: var(--success); font-weight: 700; font-size: 16px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); margin-bottom: 0; }
+    
+    .btn-checkout {
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-checkout:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); }
+    
+    .last-order {
+      margin-top: auto;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 12px;
+    }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #475569; border-radius: 2px; }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .layout { grid-template-columns: 280px 1fr 280px; }
+    }
+    @media (max-width: 1024px) {
+      body { margin-left: 0; }
+      .layout { grid-template-columns: 1fr; grid-template-rows: auto auto auto; overflow-y: auto; height: auto; }
+      .col-left, .col-mid, .col-right { height: auto; overflow: visible; }
+      .col-mid { height: 500px; }
+      .mobile-toggle { display: flex; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Left: Selection -->
+  <aside class="col-left">
+    <div class="header-logo">
+      <button class="mobile-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+      <span><i class="fas fa-ticket-alt"></i> POS SYSTEM</span>
+    </div>
+    
+    <div class="selection-area">
+      <!-- Movies Section -->
+      <div id="cinemaBlocks">
+        <div style="text-align:center; padding:20px; color:var(--text-muted)">
+          <i class="fas fa-circle-notch fa-spin"></i> Đang tải dữ liệu...
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Middle: Map -->
+  <main class="col-mid">
+    <div class="map-header">
+      <div>
+        <div id="mapTitle" class="current-info">Vui lòng chọn suất chiếu</div>
+        <div id="mapSub" class="current-sub">---</div>
+      </div>
+      <div id="seatCount" style="font-weight:700; color:var(--warning)">0 ghế</div>
+    </div>
+    
+    <div class="map-area">
+      <div class="screen-container">
+        <div class="screen">MÀN HÌNH</div>
+      </div>
+      
+      <div id="seatGrid" class="seat-grid">
+        <div style="color:var(--text-muted); display:flex; flex-direction:column; align-items:center; gap:10px">
+           <i class="fas fa-hand-pointer" style="font-size:32px; opacity:0.3"></i>
+           <span>Chọn suất chiếu bên trái để hiển thị ghế</span>
+        </div>
+      </div>
+      
+      <div class="legend">
+        <div class="legend-item"><div class="dot" style="background:var(--seat-avail)"></div>Thường</div>
+        <div class="legend-item"><div class="dot" style="background:var(--seat-vip)"></div>VIP</div>
+        <div class="legend-item"><div class="dot" style="background:var(--seat-sel)"></div>Đang chọn</div>
+        <div class="legend-item"><div class="dot" style="background:var(--seat-booked)"></div>Đã bán</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Right: Checkout -->
+  <aside class="col-right">
+    <div class="checkout-card">
+      <div class="ticket-header">
+        <div class="ticket-title">Thông Tin Đặt Vé</div>
+        <div class="ticket-sub" id="orderId">#NEW</div>
+      </div>
+      
+      <div class="form-group">
+        <label>Email Khách Hàng</label>
+        <input id="cEmail" class="form-input" placeholder="nhap@email.com" autocomplete="off" />
+      </div>
+      
+      <div class="form-group">
+        <label>Suất chiếu</label>
+        <input id="cShowInfo" class="form-input" readonly placeholder="..." />
+        <input type="hidden" id="cShowId" />
+      </div>
+      
+      <div class="form-group">
+        <label>Ghế đã chọn</label>
+        <input id="cSeats" class="form-input" readonly placeholder="Chưa chọn ghế" style="color:var(--warning); font-weight:700" />
+      </div>
+      
+      <div class="summary-box">
+        <div class="sum-row">
+          <span>Đơn giá</span>
+          <span id="pricePerSeat">0 đ</span>
+        </div>
+        <div class="sum-row">
+          <span>Số lượng</span>
+          <span id="seatQuantity">0</span>
+        </div>
+        <div class="sum-row total">
+          <span>TỔNG CỘNG</span>
+          <span id="totalPrice">0 VND</span>
+        </div>
+      </div>
+      
+      <button id="btnCounter" class="btn-checkout">
+        <i class="fas fa-check-circle"></i> Xác Nhận & In Vé
+      </button>
+      
+      <div id="msg" style="text-align:center; font-size:12px; min-height:16px"></div>
+    </div>
+    
+    <div id="lastOrderCard" class="last-order" style="display:none">
+      <div style="font-weight:700; color:var(--success); margin-bottom:4px"><i class="fas fa-history"></i> Đơn gần nhất</div>
+      <div id="lastOrderContent" style="color:var(--text-muted)"></div>
+    </div>
+    
+    <div style="margin-top:20px; text-align:center">
+      <a href="/admin/index.html" style="color:var(--text-muted); text-decoration:none; font-size:12px">
+        <i class="fas fa-arrow-left"></i> Quay lại Dashboard
+      </a>
+    </div>
+  </aside>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;"></div>
+
+<script src="/admin/sidebar.js"></script>
+<script>
+  const api = window.location.origin + '/api/admin/bookings';
+  let token = localStorage.getItem('admin_token') || '';
+  const hdrs = () => token ? { Authorization: 'Bearer ' + token, 'Content-Type':'application/json' } : { 'Content-Type':'application/json' };
+  const el = id => document.getElementById(id);
+  const apiSeats = (sid) => '/api/seats?showtimeId=' + sid;
+  const apiAdminShowList = '/api/admin/showtimes';
+
+  let selectedMovieId = null;
+  let selectedShowId = null;
+  let selectedSeats = [];
+  let currentPrice = 0;
+  let currentStPrice = 0;
+  let currentStPriceVip = 0;
+  
+  // Toast Function
+  function showToast(msg, type='success') {
+    const container = el('toastContainer');
+    const toast = document.createElement('div');
+    const colors = { success: '#10b981', error: '#ef4444', warning: '#f59e0b' };
+    const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle' };
+    
+    toast.style.cssText = `
+      background: #1e293b;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border-left: 4px solid ${colors[type]};
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 300px;
+      transform: translateX(100%);
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      font-size: 14px;
+    `;
+    
+    toast.innerHTML = `
+      <i class="fas ${icons[type]}" style="color:${colors[type]}; font-size: 16px;"></i>
+      <span style="flex:1">${msg}</span>
+      <i class="fas fa-times" style="cursor:pointer; opacity: 0.5; font-size:12px" onclick="this.parentElement.remove()"></i>
+    `;
+    
+    container.appendChild(toast);
+    requestAnimationFrame(() => toast.style.transform = 'translateX(0)');
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(100%)';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  // --- Logic ---
+  function toggleSidebar() {
+    el('sidebar').classList.toggle('show');
+  }
+
+  async function counterBook(){
+    const email = (el('cEmail')?.value||'').trim();
+    const show = selectedShowId;
+    const seats = selectedSeats;
+    
+    if(!email){ showToast('Vui lòng nhập email khách hàng', 'warning'); el('cEmail').focus(); return; }
+    if(!show){ showToast('Vui lòng chọn suất chiếu', 'warning'); return; }
+    if(seats.length===0){ showToast('Vui lòng chọn ghế', 'warning'); return; }
+    
+    el('btnCounter').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+    el('btnCounter').disabled = true;
+    
+    try{
+      const r = await fetch(api + '/counter', { method:'POST', headers: hdrs(), body: JSON.stringify({ email, showtimeId: show, seats }) });
+      if(!r.ok){ const t = await r.text(); throw new Error(t||'Thất bại'); }
+      const d = await r.json();
+      
+      showToast('Đặt vé thành công!', 'success');
+      
+      // Update Last Order
+      el('lastOrderCard').style.display = 'block';
+      el('lastOrderContent').innerHTML = `
+        <div><strong>#${d.id}</strong> - ${d.movieTitle}</div>
+        <div>${(d.seats||[]).join(', ')} • ${(d.totalPrice||0).toLocaleString()} ${d.currency}</div>
+      `;
+      
+      // Reset
+      selectedSeats = [];
+      el('cSeats').value = '';
+      el('cEmail').value = '';
+      updateTotal();
+      loadSeats(show); // Reload map
+      
+    }catch(e){ 
+      showToast('Lỗi: ' + e.message, 'error');
+    } finally {
+      el('btnCounter').innerHTML = '<i class="fas fa-check-circle"></i> Xác Nhận & In Vé';
+      el('btnCounter').disabled = false;
+    }
+  }
+
+  // --- Initialization ---
+  if (!token) { location.href = '/admin/login.html?next=' + encodeURIComponent('/admin/counter.html'); }
+  
+  el('btnCounter').addEventListener('click', counterBook);
+  el('cEmail').addEventListener('keydown', (e)=>{ if(e.key==='Enter') counterBook(); });
+  
+  loadCinemaBlocks();
+
+  // --- Rendering ---
+  function fmtTime(s){ 
+    try{ 
+      const d=new Date(s); 
+      const hh=String(d.getHours()).padStart(2,'0'); 
+      const mm=String(d.getMinutes()).padStart(2,'0'); 
+      return `${hh}:${mm}`;
+    }catch{ return s; } 
+  }
+
+  async function loadCinemaBlocks(){ 
+    try{ 
+      const r=await fetch(apiAdminShowList, { headers: hdrs() }); 
+      let arr = r.ok ? await r.json() : []; 
+      const now = Date.now(); 
+      
+      // Filter valid showtimes
+      arr = Array.isArray(arr) ? arr.filter(x=>{ 
+        try{ 
+          const t=new Date(x.startTime).getTime(); 
+          if(isNaN(t) || t < now) return false; 
+        }catch{ return false; } 
+        if (String(x.status||'').toUpperCase()==='CANCELLED') return false; 
+        return true; 
+      }) : []; 
+      
+      // Group by Cinema
+      const byCinema = {}; 
+      arr.forEach(st => { 
+        const c = st.cinema || 'Khác'; 
+        const key = String(st.movieId || st.movieTmdbId || st.movieTitle || '').trim(); 
+        if(!key) return; 
+        
+        const list = (byCinema[c] = byCinema[c] || []); 
+        // Add movie if not exists
+        if (!list.find(m => String(m.key)===key)) {
+           // Find all showtimes for this movie at this cinema
+           const showtimes = arr.filter(s => (s.cinema||'Khác')===c && String(s.movieId || s.movieTmdbId || s.movieTitle || '').trim()===key);
+           list.push({ 
+             key, 
+             title: st.movieTitle, 
+             id: st.movieId, 
+             showtimes: showtimes.sort((a,b)=>new Date(a.startTime)-new Date(b.startTime))
+           });
+        }
+      }); 
+      
+      renderCinemas(byCinema); 
+    }catch(e){ 
+      console.error(e);
+      el('cinemaBlocks').innerHTML = '<div style="color:var(--danger)">Lỗi tải dữ liệu</div>';
+    } 
+  }
+
+  function renderCinemas(groups){
+    const root = el('cinemaBlocks');
+    root.innerHTML = '';
+    const names = Object.keys(groups).sort();
+    
+    if(names.length===0){
+       root.innerHTML = '<div style="text-align:center; color:var(--text-muted)">Không có lịch chiếu</div>';
+       return;
+    }
+    
+    names.forEach(name => {
+      const group = document.createElement('div');
+      group.className = 'cinema-group';
+      
+      const title = document.createElement('div');
+      title.className = 'cinema-name';
+      title.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${name}`;
+      group.appendChild(title);
+      
+      const movies = groups[name];
+      movies.forEach(m => {
+        const wrapper = document.createElement('div');
+        
+        const btn = document.createElement('div');
+        btn.className = 'movie-btn';
+        btn.innerHTML = `<i class="fas fa-film"></i> <span>${m.title}</span>`;
+        
+        const stContainer = document.createElement('div');
+        stContainer.className = 'movie-showtimes';
+        
+        btn.onclick = () => {
+          // Close others
+          document.querySelectorAll('.movie-showtimes').forEach(x => {
+             if(x!==stContainer) x.style.display = 'none';
+          });
+          document.querySelectorAll('.movie-btn').forEach(b => b.classList.remove('active'));
+          
+          // Toggle current
+          const isHidden = stContainer.style.display === 'none' || stContainer.style.display === '';
+          if(isHidden){
+             btn.classList.add('active');
+             stContainer.style.display = 'block';
+             renderShowtimes(m.showtimes, stContainer);
+          } else {
+             stContainer.style.display = 'none';
+             btn.classList.remove('active');
+          }
+        };
+        
+        wrapper.appendChild(btn);
+        wrapper.appendChild(stContainer);
+        group.appendChild(wrapper);
+      });
+      
+      root.appendChild(group);
+    });
+  }
+
+  function renderShowtimes(arr, container){ 
+    container.innerHTML = ''; 
+    
+    arr.forEach(st=>{ 
+      const btn=document.createElement('div'); 
+      btn.className='time-chip';
+      
+      const d = new Date(st.startTime);
+      const dateStr = `${d.getDate()}/${d.getMonth()+1}`;
+      
+      btn.innerHTML=`
+        <div class="time">${fmtTime(st.startTime)}</div>
+        <div class="room">${dateStr}</div>
+      `;
+      
+      btn.onclick = (e)=>{ 
+        e.stopPropagation(); // Prevent toggling movie
+        
+        selectedShowId = st.id; 
+        currentStPrice = st.price || 0;
+        currentStPriceVip = st.priceVip || st.price || 0;
+
+        el('cShowId').value = st.id;
+        el('cShowInfo').value = `${st.movieTitle} - ${fmtTime(st.startTime)}`;
+        
+        el('mapTitle').textContent = st.movieTitle;
+        const pN = (st.price||0).toLocaleString('vi-VN');
+        const pV = (st.priceVip||st.price||0).toLocaleString('vi-VN');
+        el('mapSub').textContent = `${st.cinema} • ${st.room} • ${dateStr} ${fmtTime(st.startTime)} • Thường: ${pN}đ • VIP: ${pV}đ`;
+        
+        // UI Update
+        document.querySelectorAll('.time-chip').forEach(x=>x.classList.remove('active')); 
+        btn.classList.add('active'); 
+        
+        // Reset seats
+        selectedSeats = []; 
+        updateTotal();
+        loadSeats(st.id); 
+      }; 
+      container.appendChild(btn); 
+    }); 
+  }
+
+  async function loadSeats(id){ 
+    el('seatGrid').innerHTML = '<div style="color:var(--text-muted); padding:40px"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
+    try{ 
+      const r=await fetch(apiSeats(id)); 
+      currentShowtimeSeats = r.ok? await r.json() : []; 
+      currentPrice = 0; // Reset price when loading new show
+      renderSeats(currentShowtimeSeats); 
+    }catch{ 
+      el('seatGrid').innerHTML = '<div style="color:var(--danger)">Lỗi tải ghế</div>';
+    } 
+  }
+
+  function renderSeats(seats){ 
+    const grid=el('seatGrid'); 
+    grid.innerHTML=''; 
+    
+    if(!Array.isArray(seats)||seats.length===0){ 
+      grid.innerHTML='<div style="color:var(--text-muted)">Chưa có sơ đồ ghế</div>'; 
+      return; 
+    } 
+    
+    // Calculate grid dimensions
+    const maxCol = Math.max(...seats.map(s => (s.colIndex||0))) + 1; 
+    grid.style.gridTemplateColumns = `repeat(${Math.max(6, maxCol)}, 1fr)`; 
+    
+    // Sort
+    seats.sort((a,b)=> (a.rowIndex-b.rowIndex) || (a.colIndex-b.colIndex)); 
+    
+    seats.forEach(s=>{ 
+      const btn=document.createElement('button'); 
+      btn.className = 'seat-btn';
+      
+      const st = (s.status||'AVAILABLE'); 
+      const type = (s.type||'NORMAL'); 
+      const isSel = selectedSeats.includes(s.code); 
+      
+      if(st==='BOOKED') btn.classList.add('booked');
+      else if(st==='HELD') btn.classList.add('held');
+      else if(isSel) btn.classList.add('selected');
+      else if(type==='VIP') btn.classList.add('vip');
+      else btn.classList.add('normal');
+      
+      btn.textContent = s.code; 
+      btn.disabled = st==='BOOKED' || st==='HELD';
+      
+      btn.onclick = ()=>{ 
+        const idx=selectedSeats.indexOf(s.code); 
+        if(idx>=0){ 
+          selectedSeats.splice(idx,1); 
+        } else { 
+          selectedSeats.push(s.code); 
+        } 
+        
+        renderSeats(seats); 
+        updateTotal();
+      }; 
+      
+      grid.appendChild(btn); 
+    }); 
+  }
+  
+  let currentShowtimeSeats = [];
+
+  function updateTotal(){
+    el('cSeats').value = selectedSeats.join(', ') || '';
+    el('seatCount').textContent = selectedSeats.length + ' ghế';
+    el('seatQuantity').textContent = selectedSeats.length;
+    
+    let total = 0;
+    selectedSeats.forEach(code => {
+      const s = currentShowtimeSeats.find(x => x.code === code);
+      if(s) {
+        let price = s.price || 0;
+        if(price === 0) price = (s.type === 'VIP') ? currentStPriceVip : currentStPrice;
+        total += price;
+      }
+    });
+    
+    el('totalPrice').textContent = total.toLocaleString('vi-VN') + ' VND';
+    el('pricePerSeat').textContent = selectedSeats.length > 0 ? (total/selectedSeats.length).toLocaleString('vi-VN') + ' đ/vé' : '0 đ';
+  }
+
+  // Start
+  loadCinemaBlocks();
+
+</script>
+</body>
+</html>

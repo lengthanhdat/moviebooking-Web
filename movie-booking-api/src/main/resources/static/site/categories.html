@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Danh mục</title>
+  <link rel="stylesheet" href="/site/common.css" />
+  <style>
+    .search-wrap{
+      margin-top: 10px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: radial-gradient(1100px 480px at 10% -20%, rgba(255,90,46,.22), transparent 60%),
+                  radial-gradient(900px 420px at 90% 120%, rgba(37,99,235,.14), transparent 60%),
+                  rgba(11,18,32,0.8);
+      box-shadow: 0 18px 60px rgba(0,0,0,0.55);
+      overflow: hidden;
+    }
+    .search-head{
+      padding: 18px 18px 14px;
+      display: flex;
+      gap: 14px;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+    }
+    .search-title{
+      margin: 0;
+      color: #f1f5f9;
+      font-size: 26px;
+      font-weight: 850;
+      letter-spacing: 0.2px;
+      line-height: 1.15;
+    }
+    .search-subtitle{
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+      max-width: 720px;
+    }
+    .search-actions{
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .query-chip{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 36px;
+      padding: 0 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: #e2e8f0;
+      font-weight: 700;
+      max-width: 360px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .btn-ghost{
+      height: 36px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      color: #e2e8f0;
+      cursor: pointer;
+    }
+    .btn-ghost:hover{
+      border-color: rgba(249,115,22,0.55);
+      background: rgba(249,115,22,0.10);
+      color: #fff;
+    }
+    .search-body{
+      padding: 16px 18px 18px;
+    }
+    .genres-wrap{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .section-title{
+      margin: 0;
+      font-size: 18px;
+      color: #93c5fd;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title .count{
+      height: 26px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      color: #e2e8f0;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      font-weight: 700;
+    }
+    .search-results{
+      display: grid;
+      gap: 14px;
+    }
+    .search-results .hscroll{
+      padding: 4px 2px 10px;
+      scroll-snap-type: x mandatory;
+    }
+    .search-results .card{
+      scroll-snap-align: start;
+    }
+    .search-results .card img{
+      height: 270px;
+    }
+    .empty-state{
+      text-align: center;
+      padding: 22px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+    }
+    .empty-icon{
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      margin: 0 auto 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      font-size: 22px;
+    }
+    .empty-title{
+      color: #f1f5f9;
+      font-weight: 800;
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+    .empty-actions{
+      margin-top: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    @media (max-width: 640px){
+      .container{padding: 16px;}
+      .search-head{padding: 16px 14px 12px; align-items: flex-start; flex-direction: column;}
+      .search-actions{justify-content: flex-start;}
+      .search-body{padding: 14px;}
+      .search-title{font-size: 22px;}
+      .query-chip{max-width: 100%;}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand"><div class="logo">MB</div> Movie Booking</div>
+    <div class="nav">
+      <div class="searchbar">
+        <span class="icon">🔍</span>
+        <input id="search" placeholder="Tìm phim" />
+        <button id="btnSearch" class="primary">Tìm</button>
+      </div>
+      <div id="userArea"></div>
+    </div>
+  </header>
+  <div class="container">
+    <div class="section search-wrap">
+      <div class="search-head">
+        <div>
+          <h1 id="pageTitle" class="search-title">Khám phá phim</h1>
+          <div id="pageSubtitle" class="search-subtitle">Tìm phim theo từ khóa hoặc duyệt theo thể loại.</div>
+        </div>
+        <div class="search-actions">
+          <div id="queryChip" class="query-chip hidden"></div>
+          <button id="clearBtn" class="btn-ghost hidden" type="button">Xóa tìm kiếm</button>
+        </div>
+      </div>
+      <div class="search-body">
+        <div class="genres-wrap">
+          <h2 id="sectionTitle" class="section-title">Thể loại <span id="resultCount" class="count hidden"></span></h2>
+        </div>
+        <div id="genres" class="flex" style="margin-bottom:10px"></div>
+        <div id="list" class="grid"></div>
+      </div>
+    </div>
+  </div>
+  <script src="/site/common.js"></script>
+  <script>
+    const state={all:[], genre:null, q:null};
+    const TMDB_CACHE_PREFIX = 'mb_tmdb_list_v1:';
+    function readTmdbCache(key, maxAgeMs){
+      try{
+        const raw = sessionStorage.getItem(TMDB_CACHE_PREFIX + key);
+        if(!raw) return null;
+        const obj = JSON.parse(raw);
+        if(!obj || typeof obj.t !== 'number') return null;
+        if(Date.now() - obj.t > maxAgeMs) return null;
+        return Array.isArray(obj.v) ? obj.v : null;
+      }catch{ return null; }
+    }
+    function writeTmdbCache(key, value){
+      try{ sessionStorage.setItem(TMDB_CACHE_PREFIX + key, JSON.stringify({ t: Date.now(), v: value })); }catch{}
+    }
+    async function getPages(fn, pages, cacheKey){
+      const cached = readTmdbCache(cacheKey, 10 * 60_000);
+      if(cached) return cached;
+      const reqs = [];
+      for(let i=1;i<=pages;i++){
+        reqs.push(
+          fetchJson(fn(i))
+            .then(obj => Array.isArray(obj?.results) ? obj.results : [])
+            .catch(()=>[])
+        );
+      }
+      const parts = await Promise.all(reqs);
+      const out = parts.flat();
+      if(out.length) writeTmdbCache(cacheKey, out);
+      return out;
+    }
+    async function load(){
+      const p=qs(); state.q=(p.q||'').trim(); if(state.q) state.genre=null;
+      let [nowArr, upArr] = await Promise.all([
+        getPages(API.tmdbNowPlaying, 3, 'now_playing:vi-VN:3'),
+        getPages(API.tmdbUpcoming, 3, 'upcoming:vi-VN:3')
+      ]);
+      if(!nowArr.length || !upArr.length){
+        const [altNow, altUp] = await Promise.all([
+          nowArr.length ? Promise.resolve(null) : fetchJson(API.publicNowPlaying).catch(()=>null),
+          upArr.length ? Promise.resolve(null) : fetchJson(API.publicUpcoming).catch(()=>null)
+        ]);
+        if(!nowArr.length && Array.isArray(altNow)) nowArr = altNow;
+        if(!upArr.length && Array.isArray(altUp)) upArr = altUp;
+      }
+      const extTagged = [
+        ...nowArr.map(m=> Object.assign({}, m, { statusMarker:'NOW_SHOWING' })),
+        ...upArr.map(m=> Object.assign({}, m, { statusMarker:'UPCOMING' }))
+      ];
+      state.all = extTagged;
+      const input=document.getElementById('search'); if(input&&state.q) input.value=state.q;
+      const pageTitle=document.getElementById('pageTitle');
+      const pageSubtitle=document.getElementById('pageSubtitle');
+      const sectionTitle=document.getElementById('sectionTitle');
+      const resultCount=document.getElementById('resultCount');
+      const queryChip=document.getElementById('queryChip');
+      const clearBtn=document.getElementById('clearBtn');
+      const genresEl=document.getElementById('genres');
+      const listEl=document.getElementById('list');
+
+      if(clearBtn){
+        clearBtn.onclick = ()=>{ location.href = '/site/categories.html'; };
+      }
+
+      if(state.q){
+        if(pageTitle) pageTitle.textContent = 'Kết quả tìm kiếm';
+        if(pageSubtitle) pageSubtitle.textContent = 'Đang tìm phim phù hợp...';
+        if(sectionTitle) sectionTitle.childNodes[0].textContent = 'Kết quả ';
+        if(queryChip){ queryChip.textContent = `“${state.q}”`; queryChip.classList.remove('hidden'); }
+        if(clearBtn) clearBtn.classList.remove('hidden');
+        if(genresEl) genresEl.style.display = 'none';
+        if(listEl) listEl.classList.remove('grid');
+        document.title = `Tìm kiếm: ${state.q} - Movie Booking`;
+      } else {
+        if(pageTitle) pageTitle.textContent = 'Khám phá phim';
+        if(pageSubtitle) pageSubtitle.textContent = 'Chọn thể loại hoặc dùng ô tìm kiếm ở trên để tìm phim.';
+        if(sectionTitle) sectionTitle.childNodes[0].textContent = 'Thể loại ';
+        if(queryChip) queryChip.classList.add('hidden');
+        if(clearBtn) clearBtn.classList.add('hidden');
+        if(genresEl) genresEl.style.display = '';
+        if(listEl) listEl.classList.add('grid');
+        document.title = 'Danh mục - Movie Booking';
+      }
+      if(resultCount) resultCount.classList.add('hidden');
+      if(!state.q){ renderGenres(); }
+      renderList();
+    }
+    function renderGenres(){ const set=new Set(); state.all.forEach(m=> (m.genres||[]).forEach(g=> set.add(g))); const root=document.getElementById('genres'); root.innerHTML=''; const allBtn=document.createElement('div'); allBtn.className='pill'; allBtn.textContent='Tất cả'; allBtn.onclick=()=>{ state.genre=null; renderList(); }; root.appendChild(allBtn); Array.from(set).sort().forEach(g=>{ const p=document.createElement('div'); p.className='pill'; p.textContent=g; p.onclick=()=>{ state.genre=g; renderList(); }; root.appendChild(p); }); }
+    function renderList(){
+      const root=document.getElementById('list'); root.innerHTML='';
+      const norm = (s)=> String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      const q=norm(state.q||'');
+      const match=(m)=>{ const vi=norm(m.title||''); const en=norm(m.original_title||''); return !q || vi.includes(q) || en.includes(q); };
+      const arr = state.all.filter(match);
+      if(q){
+        root.className='search-results';
+        const resultCount=document.getElementById('resultCount');
+        const pageSubtitle=document.getElementById('pageSubtitle');
+        if(resultCount){ resultCount.textContent = `${arr.length}`; resultCount.classList.remove('hidden'); }
+        if(pageSubtitle){ pageSubtitle.textContent = `Tìm thấy ${arr.length} kết quả phù hợp với từ khóa.`; }
+        if(arr.length===0){
+          const empty=document.createElement('div');
+          empty.className='empty-state';
+          empty.innerHTML = `
+            <div class="empty-icon">🔎</div>
+            <div class="empty-title">Không có kết quả phù hợp</div>
+            <div class="muted">Thử từ khóa khác hoặc kiểm tra chính tả.</div>
+            <div class="empty-actions">
+              <button class="primary" id="emptyClearBtn" type="button">Xóa tìm kiếm</button>
+            </div>
+          `;
+          root.appendChild(empty);
+          const emptyClearBtn = document.getElementById('emptyClearBtn');
+          if(emptyClearBtn) emptyClearBtn.onclick = ()=>{ location.href = '/site/categories.html'; };
+          return;
+        }
+        const renderGroup=(title,list)=>{
+          if(!list.length) return;
+          const sub=document.createElement('div'); sub.className='subhead'; sub.textContent=title; root.appendChild(sub);
+          const hscroll=document.createElement('div'); hscroll.className='hscroll';
+          list.forEach(m=>{
+            const key=m.id;
+            const card=document.createElement('div'); card.className='card'; card.style.width='200px'; card.style.flex='0 0 auto';
+            card.onclick=()=>location.href=`/site/detail.html?movieId=${key}`;
+            const img=document.createElement('img'); const pth = m.poster_path ? (m.poster_path.startsWith('/')? m.poster_path : ('/'+m.poster_path)) : ''; img.src = pth ? (`/api/movies/public/img?path=${encodeURIComponent(pth)}&size=w500`) : '';
+            const info=document.createElement('div'); info.className='info';
+            const t=document.createElement('div'); t.className='title'; t.textContent=m.title || m.original_title;
+            info.appendChild(t); card.appendChild(img); card.appendChild(info); hscroll.appendChild(card);
+          });
+          root.appendChild(hscroll);
+        };
+        const now=arr.filter(m=> String(m.statusMarker||'').toUpperCase()==='NOW_SHOWING');
+        const up=arr.filter(m=> String(m.statusMarker||'').toUpperCase()==='UPCOMING');
+        renderGroup('Đang chiếu', now);
+        renderGroup('Sắp chiếu', up);
+        return;
+      }
+      // Không có từ khóa: hiển thị dạng lưới mặc định (nếu cần)
+      root.className='grid';
+      const resultCount=document.getElementById('resultCount');
+      const pageSubtitle=document.getElementById('pageSubtitle');
+      if(resultCount) resultCount.classList.add('hidden');
+      if(pageSubtitle) pageSubtitle.textContent = state.genre ? `Đang xem thể loại: ${state.genre}.` : 'Chọn thể loại hoặc dùng ô tìm kiếm ở trên để tìm phim.';
+      if(arr.length===0){ const empty=document.createElement('div'); empty.className='muted'; empty.textContent='Không có phim trong thể loại này'; root.appendChild(empty); return; }
+      arr.forEach(m=>{
+        const key=m.id;
+        const card=document.createElement('div'); card.className='card';
+        card.onclick=()=>location.href=`/site/detail.html?movieId=${key}`;
+        const img=document.createElement('img'); const pth = m.poster_path ? (m.poster_path.startsWith('/')? m.poster_path : ('/'+m.poster_path)) : ''; img.src = pth ? (`/api/movies/public/img?path=${encodeURIComponent(pth)}&size=w500`) : '';
+        const info=document.createElement('div'); info.className='info';
+        const t=document.createElement('div'); t.className='title'; t.textContent=m.title || m.original_title;
+        info.appendChild(t); card.appendChild(img); card.appendChild(info); root.appendChild(card);
+      });
+    }
+    load().catch(e=>toast(e.message)); injectBottomNav();
+  </script>
+</body>
+</html>

@@ -30,4 +30,23 @@ public class User {
 
     @Column(name = "name", nullable = false)
     private String legacyName;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private com.movie.movie_booking_api.entity.UserRole role;
+
+    @Column(name = "locked")
+    private Boolean locked;
+
+    @Column(name = "email_verified")
+    private Boolean emailVerified;
+
+    @Column(name = "email_verified_at")
+    private java.time.LocalDateTime emailVerifiedAt;
+
+    @Column(name = "verification_token", length = 200)
+    private String verificationToken;
+
+    @Column(name = "verification_expires_at")
+    private java.time.LocalDateTime verificationExpiresAt;
 }

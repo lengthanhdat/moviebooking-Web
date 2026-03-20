@@ -12,4 +12,6 @@ public class BookingRequest {
     private Long showtimeId;
     @NotEmpty
     private List<String> seats;
+
+    private String holdId;
 }

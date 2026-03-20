@@ -51,4 +51,7 @@ public class Seat {
 
     @Column(name = "held_until")
     private java.time.LocalDateTime heldUntil;
+
+    @Column(name = "held_by")
+    private String heldBy;
 }

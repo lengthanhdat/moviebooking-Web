@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thanh toán</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/site/common.css" />
+  <style>
+    :root{
+      --header-h: 80px;
+      --pay-bg:#020617;
+      --pay-panel: rgba(15, 23, 42, 0.58);
+      --pay-panel-strong: rgba(11, 18, 32, 0.92);
+      --pay-border-soft: rgba(255,255,255,0.10);
+      --pay-border-softer: rgba(255,255,255,0.06);
+      --pay-text-muted: rgba(148,163,184,0.95);
+      --pay-ease:cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+    html, body{min-height:100%}
+    html{
+      background: radial-gradient(900px 520px at 12% 0%, rgba(249,115,22,0.20), transparent 60%),
+                  radial-gradient(900px 520px at 88% 18%, rgba(37,99,235,0.14), transparent 60%),
+                  radial-gradient(800px 520px at 50% 110%, rgba(251,146,60,0.16), transparent 60%),
+                  var(--pay-bg);
+    }
+    body.payment-vip{
+      background: radial-gradient(900px 520px at 12% 0%, rgba(249,115,22,0.20), transparent 60%),
+                  radial-gradient(900px 520px at 88% 18%, rgba(37,99,235,0.14), transparent 60%),
+                  radial-gradient(800px 520px at 50% 110%, rgba(251,146,60,0.16), transparent 60%),
+                  var(--pay-bg);
+      min-height: 100vh;
+      font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+      overflow-x:hidden;
+    }
+    body.payment-vip header{
+      height: var(--header-h);
+      background: rgba(2, 6, 23, 0.78);
+      border-bottom: 1px solid var(--pay-border-softer);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    body.payment-vip .brand{
+      color:#fff;
+      font-weight:800;
+      font-size:20px;
+      letter-spacing:0.2px;
+      font-family:'Playfair Display', serif;
+    }
+    body.payment-vip .brand .logo{
+      width:34px;height:34px;border-radius:17px;
+      box-shadow: 0 0 18px rgba(249, 115, 22, 0.34);
+    }
+    body.payment-vip .searchbar{
+      height:44px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--pay-border-soft);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.18);
+    }
+    body.payment-vip .container{max-width:1280px;padding:28px 22px;}
+    body.payment-vip .section{margin-top:0;}
+    body.payment-vip .page-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:18px;
+      margin: 6px 0 16px;
+    }
+    body.payment-vip .page-title{
+      margin:0;
+      font-family:'Playfair Display', serif;
+      font-size:28px;
+      letter-spacing:0.2px;
+      color:#fff;
+    }
+    body.payment-vip .steps{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    body.payment-vip .step{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid var(--pay-border-soft);
+      background: rgba(255,255,255,0.04);
+      color: rgba(148,163,184,0.95);
+      font-size:13px;
+      font-weight:600;
+    }
+    body.payment-vip .step .dot{
+      width:8px;height:8px;border-radius:4px;
+      background: rgba(148,163,184,0.5);
+      box-shadow: 0 0 0 4px rgba(148,163,184,0.14);
+    }
+    body.payment-vip .step.active{
+      color:#fff;
+      border-color: rgba(249,115,22,0.55);
+      background: rgba(249,115,22,0.10);
+    }
+    body.payment-vip .step.active .dot{
+      background: var(--orange);
+      box-shadow: 0 0 0 4px rgba(249,115,22,0.16), 0 0 18px rgba(249,115,22,0.35);
+    }
+    body.payment-vip .page-grid{grid-template-columns: 1fr 420px;gap:18px;}
+    body.payment-vip .box{
+      background: var(--pay-panel);
+      border: 1px solid var(--pay-border-softer);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.45);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    body.payment-vip .card-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-top:2px;
+    }
+    body.payment-vip .card-title{
+      color:#fff;
+      font-weight:800;
+      font-size:16px;
+      letter-spacing:0.2px;
+      margin:0;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    body.payment-vip .card-title .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      height:26px;
+      padding:0 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: rgba(226,232,240,0.92);
+      font-weight:700;
+      font-size:12px;
+      letter-spacing:0.12px;
+    }
+    body.payment-vip .card-sub{
+      color: var(--pay-text-muted);
+      font-size:13px;
+      line-height:1.5;
+      margin-top:6px;
+    }
+    body.payment-vip .pay-form{
+      margin-top:14px;
+      display:grid;
+      gap:10px;
+    }
+    body.payment-vip .form-row{display:grid;grid-template-columns: 1fr 1fr;gap:10px}
+    body.payment-vip .field-wrap{display:flex;flex-direction:column;gap:6px}
+    body.payment-vip .field-label{
+      color: rgba(148,163,184,0.92);
+      font-size:12px;
+      letter-spacing:0.16px;
+      font-weight:700;
+    }
+    body.payment-vip .field.pay{
+      height:46px;
+      border-radius:999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(2, 6, 23, 0.55);
+      box-shadow: inset 0 10px 20px rgba(0,0,0,0.45);
+      transition: transform .16s var(--pay-ease), border-color .18s var(--pay-ease), box-shadow .18s var(--pay-ease);
+      gap:10px;
+      padding:0 14px;
+    }
+    body.payment-vip .field.pay:focus-within{
+      border-color: rgba(249,115,22,0.55);
+      box-shadow: inset 0 10px 20px rgba(0,0,0,0.45), 0 16px 34px rgba(249,115,22,0.16);
+      transform: translateY(-1px);
+    }
+    body.payment-vip .field.pay .i{
+      width:22px;
+      text-align:center;
+      color: rgba(251,146,60,0.95);
+      font-size:14px;
+    }
+    body.payment-vip .field.pay input{
+      height:100%;
+      font-size:14px;
+      letter-spacing:0.2px;
+      color: rgba(248,250,252,0.95);
+    }
+    body.payment-vip .field.pay input::placeholder{color: rgba(148,163,184,0.75)}
+    body.payment-vip .hint{
+      margin-top:8px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: rgba(148,163,184,0.9);
+      font-size:12px;
+    }
+    body.payment-vip .hint .left{display:flex;align-items:center;gap:8px}
+    body.payment-vip .hint .pill{
+      height:26px;
+      padding:0 10px;
+      border-radius:999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      color: rgba(226,232,240,0.92);
+      font-weight:700;
+      font-size:12px;
+      cursor:default;
+    }
+    body.payment-vip button.primary.cta-full{
+      height:46px;
+      border-radius: 999px;
+      border-color: rgba(249,115,22,0.55);
+      background: linear-gradient(135deg, var(--orange), var(--orange2));
+      box-shadow: 0 14px 30px rgba(249,115,22,0.22);
+      transition: transform .18s var(--pay-ease), box-shadow .22s var(--pay-ease), filter .2s var(--pay-ease);
+      font-weight:800;
+      letter-spacing:0.2px;
+    }
+    body.payment-vip button.primary.cta-full:hover{transform: translateY(-2px);box-shadow: 0 20px 40px rgba(249,115,22,0.28);filter:brightness(1.02)}
+    body.payment-vip button.primary.cta-full:disabled{opacity:0.55;cursor:not-allowed;transform:none;filter:none}
+    body.payment-vip .sum{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    body.payment-vip .sum-top{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    body.payment-vip .sum-poster{
+      width:84px;height:126px;border-radius:14px;object-fit:cover;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(2,6,23,0.55);
+      box-shadow: 0 16px 34px rgba(0,0,0,0.40);
+    }
+    body.payment-vip .sum-title{
+      font-weight:800;
+      color:#fff;
+      font-size:16px;
+      line-height:1.3;
+      letter-spacing:0.15px;
+    }
+    body.payment-vip .sum-meta{color: rgba(148,163,184,0.92);font-size:13px;line-height:1.45;margin-top:6px}
+    body.payment-vip .sum-block{
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(2,6,23,0.40);
+      border-radius: 16px;
+      padding: 12px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    body.payment-vip .kv{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;color: rgba(226,232,240,0.92);font-size:13px}
+    body.payment-vip .kv .k{color: rgba(148,163,184,0.9)}
+    body.payment-vip .kv .v{font-weight:700;text-align:right}
+    body.payment-vip .sum-total{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:14px;
+      color: rgba(226,232,240,0.92);
+      padding-top:10px;
+      border-top: 1px dashed rgba(148,163,184,0.25);
+    }
+    body.payment-vip .sum-total .v{font-weight:900;color: var(--orange2);letter-spacing:0.2px}
+    body.payment-vip .sticky{position:sticky;top: calc(var(--header-h) + 18px)}
+    body.payment-vip .pay-timer{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(2,6,23,0.45);
+      color: rgba(226,232,240,0.92);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+    }
+    @media (max-width: 980px){
+      body.payment-vip .page-head{align-items:flex-start;flex-direction:column;}
+      body.payment-vip .steps{justify-content:flex-start;}
+      body.payment-vip .page-grid{grid-template-columns: 1fr;}
+      body.payment-vip .sticky{position:static}
+    }
+    @media (max-width: 520px){
+      body.payment-vip .form-row{grid-template-columns: 1fr}
+    }
+  </style>
+</head>
+<body class="payment-vip">
+  <header>
+    <div class="brand"><div class="logo">MB</div> Movie Booking</div>
+    <div class="nav">
+      <div class="searchbar">
+        <span class="icon">🔍</span>
+        <input id="search" placeholder="Tìm phim" />
+        <button id="btnSearch" class="primary">Tìm</button>
+      </div>
+      <div id="userArea"></div>
+    </div>
+  </header>
+  <div class="container">
+    <div class="section">
+      <div class="page-head">
+        <h1 class="page-title">Thanh toán</h1>
+        <div id="payTimer" class="pay-timer">Thời gian thanh toán: 59s</div>
+        <div class="steps">
+          <div class="step"><span class="dot"></span><span>Chọn ghế</span></div>
+          <div class="step active"><span class="dot"></span><span>Thanh toán</span></div>
+          <div class="step"><span class="dot"></span><span>Vé của bạn</span></div>
+        </div>
+      </div>
+      <div class="page-grid">
+        <div class="box">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Thông tin thanh toán <span class="badge">Bảo mật</span></div>
+              <div class="card-sub">Điền thông tin thẻ để hoàn tất đặt vé. Dữ liệu chỉ dùng để mô phỏng thanh toán.</div>
+            </div>
+          </div>
+          <div class="pay-form">
+            <div class="field-wrap">
+              <div class="field-label">Tên trên thẻ</div>
+              <div class="field pay"><span class="i">👤</span><input id="cardName" autocomplete="cc-name" placeholder="Ví dụ: NGUYEN VAN A" /></div>
+            </div>
+            <div class="field-wrap">
+              <div class="field-label">Số thẻ</div>
+              <div class="field pay"><span class="i">💳</span><input id="cardNumber" inputmode="numeric" autocomplete="cc-number" placeholder="1234 5678 9012 3456" /></div>
+            </div>
+            <div class="form-row">
+              <div class="field-wrap">
+                <div class="field-label">Hết hạn</div>
+                <div class="field pay"><span class="i">📅</span><input id="cardExp" inputmode="numeric" autocomplete="cc-exp" placeholder="MM/YY" /></div>
+              </div>
+              <div class="field-wrap">
+                <div class="field-label">CVC/CVV</div>
+                <div class="field pay"><span class="i">🔒</span><input id="cardCvc" inputmode="numeric" autocomplete="cc-csc" placeholder="123" /></div>
+              </div>
+            </div>
+          </div>
+          <div class="hint">
+            <div class="left"><span>🔐</span><span>Thanh toán an toàn • Xác thực nhanh</span></div>
+            <div class="pill">VISA / MASTER</div>
+          </div>
+          <div class="form-actions simple" style="margin-top:14px">
+            <button id="pay" class="primary cta-full">Thanh toán & đặt vé</button>
+          </div>
+        </div>
+        <div class="box sticky">
+          <div class="card-title">Thông tin đơn</div>
+          <div id="summary" class="sum" style="margin-top:10px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/site/common.js"></script>
+  <script>
+    const { showtimeId } = qs();
+    function parseJsonSafe(s){ try{ return JSON.parse(s); }catch{ return null; } }
+    function normalizeSeats(raw){
+      const arr = Array.isArray(raw) ? raw.map(x => String(x == null ? '' : x).trim()).filter(Boolean) : [];
+      return Array.from(new Set(arr));
+    }
+    function readSelectionFrom(storage, key){
+      try{
+        const s = storage.getItem(key);
+        if(!s) return null;
+        const obj = parseJsonSafe(s);
+        if(!obj || typeof obj !== 'object') return null;
+        if(String(obj.showtimeId) !== String(showtimeId)) return null;
+        return { ...obj, seats: normalizeSeats(obj.seats) };
+      }catch{
+        return null;
+      }
+    }
+    const _s1 = readSelectionFrom(sessionStorage, 'selection');
+    const _s2 = readSelectionFrom(localStorage, `selection:${showtimeId}`);
+    const _s3 = readSelectionFrom(localStorage, 'selection_latest');
+    const _best = [_s1, _s2, _s3].filter(Boolean).sort((a,b)=> (b.seats.length - a.seats.length))[0] || null;
+    let sel = {
+      showtimeId: String(showtimeId || ''),
+      seats: _best ? _best.seats : [],
+      holdId: (_s1 && _s1.holdId) || (_s2 && _s2.holdId) || (_s3 && _s3.holdId) || null,
+      holdExpiresAt: (_s1 && _s1.holdExpiresAt) || (_s2 && _s2.holdExpiresAt) || (_s3 && _s3.holdExpiresAt) || null,
+      movie: (_s1 && _s1.movie) || (_s2 && _s2.movie) || (_s3 && _s3.movie) || null,
+      current: (_s1 && _s1.current) || (_s2 && _s2.current) || (_s3 && _s3.current) || null
+    };
+    if(!sel.seats.length){ toast('Thiếu lựa chọn ghế'); }
+    try{ sessionStorage.setItem('selection', JSON.stringify(sel)); }catch{}
+    async function loadQuote(){
+      try{
+        const seats = Array.isArray(sel.seats) ? sel.seats : [];
+        const data = seats.length ? await fetchJson(API.quote, { method:'POST', body: JSON.stringify({ showtimeId: Number(showtimeId), seats }) }) : null;
+        renderSummary(data);
+      }catch(e){
+        const el=document.getElementById('summary'); if(el) el.textContent=e.message;
+      }
+    }
+    function renderSummary(data){
+      const el=document.getElementById('summary'); if(!el) return;
+      const seats = Array.isArray(sel.seats) ? sel.seats : [];
+      const currency = data ? (data.currency==='VND'?'đ':data.currency) : '';
+      const totalRaw = data ? Number(data.totalPrice||0) : 0;
+      const total = data ? new Intl.NumberFormat('vi-VN').format(totalRaw) : '';
+      const timeStr = sel.current && sel.current.startTime ? formatDisplay(sel.current.startTime) : '';
+      const poster = (sel.movie&&sel.movie.posterUrl) ? `<img class="sum-poster" src="${sel.movie.posterUrl}" alt="" />` : `<div class="sum-poster" style="display:flex;align-items:center;justify-content:center;color:rgba(148,163,184,0.75);font-weight:800">MB</div>`;
+      const title = (sel.movie&&sel.movie.title)||'';
+      const cinema = sel.current ? `${sel.current.cinema||''}${sel.current.room?(' - '+sel.current.room):''}` : '';
+      const seatsStr = seats.length ? seats.join(', ') : '';
+      const unit = seats.length && data ? Math.round(totalRaw / seats.length) : 0;
+      const unitText = unit ? new Intl.NumberFormat('vi-VN').format(unit) : '';
+      const info = `
+        <div class="sum-top">
+          ${poster}
+          <div>
+            <div class="sum-title">${title}</div>
+            ${cinema?`<div class="sum-meta">${cinema}</div>`:''}
+            ${timeStr?`<div class="sum-meta">Suất: ${timeStr}</div>`:''}
+          </div>
+        </div>
+      `;
+      if(seats.length===0){
+        const mid = sel && sel.movie && sel.movie.id ? sel.movie.id : null;
+        const back = `/site/seats.html?showtimeId=${encodeURIComponent(showtimeId)}${mid?`&movieId=${encodeURIComponent(mid)}`:''}`;
+        el.innerHTML = info + `<div class="sum-block"><div class="kv"><div class="k">Ghế</div><div class="v">Chưa chọn</div></div><div style="margin-top:10px"><button class="primary cta-full" type="button" onclick="location.href='${back}'">Quay lại chọn ghế</button></div></div>`;
+        return;
+      }
+      el.innerHTML = info + `
+        <div class="sum-block">
+          <div class="kv"><div class="k">Ghế</div><div class="v">${seatsStr}</div></div>
+          ${unitText?`<div class="kv"><div class="k">Đơn giá</div><div class="v">${unitText} ${currency}</div></div>`:''}
+          <div class="kv"><div class="k">Số lượng</div><div class="v">${seats.length}</div></div>
+          <div class="sum-total"><div class="k">Tổng cộng</div><div class="v">${total} ${currency}</div></div>
+        </div>
+      `;
+      const btn=document.getElementById('pay');
+      if(btn && total){ btn.dataset.total = `${total} ${currency}`; }
+    }
+    function onlyDigits(s){ return (s||'').replace(/[^\d]/g,''); }
+    function formatCardNumberInput(v){ const d=onlyDigits(v).slice(0,19); return d.replace(/(\d{4})(?=\d)/g,'$1 '); }
+    function formatExpInput(v){ const d=onlyDigits(v).slice(0,4); if(d.length<=2) return d; return d.slice(0,2)+'/'+d.slice(2); }
+    function setInputValue(id, next){ const el=document.getElementById(id); if(!el) return; const start=el.selectionStart; const prev=el.value; el.value=next; if(start!==null && typeof start==='number'){ const delta=next.length-prev.length; el.setSelectionRange(Math.max(0,start+delta), Math.max(0,start+delta)); } }
+    const cardNumberEl=document.getElementById('cardNumber');
+    const cardExpEl=document.getElementById('cardExp');
+    const cardCvcEl=document.getElementById('cardCvc');
+    if(cardNumberEl) cardNumberEl.addEventListener('input', ()=> setInputValue('cardNumber', formatCardNumberInput(cardNumberEl.value)));
+    if(cardExpEl) cardExpEl.addEventListener('input', ()=> setInputValue('cardExp', formatExpInput(cardExpEl.value)));
+    if(cardCvcEl) cardCvcEl.addEventListener('input', ()=> setInputValue('cardCvc', onlyDigits(cardCvcEl.value).slice(0,4)));
+
+    let __paid = false;
+    let __released = false;
+    function releaseHold(){
+      try{
+        if(__paid || __released) return;
+        __released = true;
+        if(!sel || !sel.holdId) return;
+        const body = JSON.stringify({ showtimeId: Number(showtimeId), holdId: String(sel.holdId) });
+        const headers = { "Content-Type": "application/json", "Accept": "application/json" };
+        const t = getToken();
+        if(t) headers["Authorization"] = `Bearer ${t}`;
+        fetch(buildUrl('/api/seatings/release'), { method:'POST', headers, body, keepalive:true }).catch(()=>{});
+      }catch{}
+      try{ sessionStorage.removeItem('selection'); }catch{}
+      try{ localStorage.removeItem(`selection:${showtimeId}`); }catch{}
+      try{ const latest = parseJsonSafe(localStorage.getItem('selection_latest')||''); if(latest && String(latest.showtimeId)===String(showtimeId)) localStorage.removeItem('selection_latest'); }catch{}
+    }
+
+    window.addEventListener('pagehide', () => releaseHold());
+    document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'hidden') releaseHold(); });
+
+    const PAY_TIMEOUT_SECONDS = 59;
+    let __paymentTimerId = null;
+    function setPayTimerUI(sec){
+      const el = document.getElementById('payTimer');
+      if(!el) return;
+      const s = Math.max(0, Number(sec)||0);
+      el.textContent = `Thời gian thanh toán: ${s}s`;
+    }
+    function redirectToSeatsBecauseTimeout(){
+      releaseHold();
+      const mid = sel && sel.movie && sel.movie.id ? sel.movie.id : null;
+      const back = `/site/seats.html?showtimeId=${encodeURIComponent(showtimeId)}${mid?`&movieId=${encodeURIComponent(mid)}`:''}`;
+      try{ toast('Hết thời gian thanh toán'); setFlash('Hết thời gian thanh toán'); }catch{}
+      setTimeout(()=>{ location.href = back; }, 350);
+    }
+    function startPayCountdown(){
+      let left = PAY_TIMEOUT_SECONDS;
+      try{
+        if(sel && sel.holdExpiresAt){
+          const exp = new Date(sel.holdExpiresAt);
+          const ms = exp.getTime() - Date.now();
+          if(Number.isFinite(ms)){
+            left = Math.max(0, Math.ceil(ms/1000));
+            if(left > PAY_TIMEOUT_SECONDS) left = PAY_TIMEOUT_SECONDS;
+          }
+        }
+      }catch{}
+      setPayTimerUI(left);
+      if(__paymentTimerId) clearInterval(__paymentTimerId);
+      __paymentTimerId = setInterval(()=>{
+        if(__paid){
+          clearInterval(__paymentTimerId);
+          __paymentTimerId = null;
+          return;
+        }
+        left -= 1;
+        setPayTimerUI(left);
+        if(left <= 0){
+          clearInterval(__paymentTimerId);
+          __paymentTimerId = null;
+          redirectToSeatsBecauseTimeout();
+        }
+      }, 1000);
+    }
+
+    async function go(){
+      if(!requireAuth()) return;
+      const seats = Array.isArray(sel.seats) ? sel.seats : [];
+      if(!seats.length){
+        toast('Bạn chưa chọn ghế');
+        const mid = sel && sel.movie && sel.movie.id ? sel.movie.id : null;
+        const back = `/site/seats.html?showtimeId=${encodeURIComponent(showtimeId)}${mid?`&movieId=${encodeURIComponent(mid)}`:''}`;
+        setTimeout(()=>{ location.href = back; }, 350);
+        return;
+      }
+      const holdId = sel && sel.holdId != null ? String(sel.holdId).trim() : '';
+      if(!holdId || holdId === 'null' || holdId === 'undefined'){
+        toast('Phiên giữ ghế không hợp lệ, vui lòng chọn lại ghế');
+        const mid = sel && sel.movie && sel.movie.id ? sel.movie.id : null;
+        const back = `/site/seats.html?showtimeId=${encodeURIComponent(showtimeId)}${mid?`&movieId=${encodeURIComponent(mid)}`:''}`;
+        setTimeout(()=>{ location.href = back; }, 350);
+        return;
+      }
+      try{
+        if(sel && sel.holdExpiresAt){
+          const exp = new Date(sel.holdExpiresAt);
+          if(Number.isFinite(exp.getTime()) && exp.getTime() <= Date.now()){
+            toast('Phiên giữ ghế đã hết hạn, vui lòng chọn lại ghế');
+            const mid = sel && sel.movie && sel.movie.id ? sel.movie.id : null;
+            const back = `/site/seats.html?showtimeId=${encodeURIComponent(showtimeId)}${mid?`&movieId=${encodeURIComponent(mid)}`:''}`;
+            setTimeout(()=>{ location.href = back; }, 350);
+            return;
+          }
+        }
+      }catch{}
+      const cur=sel.current;
+      if(cur){
+        const now=new Date();
+        const start=new Date(cur.startTime);
+        const mins=Math.floor((start-now)/60000);
+        if(cur.disabled||mins<10){ toast(cur.disabled?'Suất chiếu đã bị tắt':'Suất chiếu sắp diễn ra (<10 phút), không thể thanh toán'); return; }
+      }
+      const payBtn=document.getElementById('pay');
+      const cardName=document.getElementById('cardName').value.trim();
+      const cardNumber=document.getElementById('cardNumber').value.trim();
+      const exp=document.getElementById('cardExp').value.trim();
+      const cvc=document.getElementById('cardCvc').value.trim();
+      const expOk=/^(0[1-9]|1[0-2])\/(\d{2})$/.test(exp);
+      const numOk=/^\d{12,19}$/.test(cardNumber.replace(/\s+/g,''));
+      const cvcOk=/^\d{3,4}$/.test(cvc);
+      if(cardName.length<2||!numOk||!expOk||!cvcOk){ toast('Thông tin thanh toán chưa hợp lệ'); return; }
+
+      const prevText = payBtn ? payBtn.textContent : '';
+      if(payBtn){ payBtn.disabled = true; payBtn.textContent = 'Đang xử lý...'; }
+      fetchJson(API.booking, { method:'POST', body: JSON.stringify({ showtimeId: Number(showtimeId), seats, holdId }) }).then(data=>{ const email=getEmail(); if(email){ const key=`booking_history:${email}`; const arr=JSON.parse(localStorage.getItem(key)||'[]'); arr.push({ id:data.id, movieTitle:data.movieTitle, startTime:data.startTime, seats:data.seats, totalPrice:data.totalPrice, currency:data.currency, code:data.code||'' }); localStorage.setItem(key, JSON.stringify(arr)); }
+      const msg=`Thanh toán thành công. Mã đơn: ${data.id}`; try{ toast(msg); setFlash(msg); }catch{}
+      __paid = true;
+      try{ sessionStorage.removeItem('selection'); }catch{}
+      try{ localStorage.removeItem(`selection:${showtimeId}`); }catch{}
+      try{ const latest = parseJsonSafe(localStorage.getItem('selection_latest')||''); if(latest && String(latest.showtimeId)===String(showtimeId)) localStorage.removeItem('selection_latest'); }catch{}
+      location.href = `/site/confirm.html?id=${data.id}`; }).catch(e=>{ let msg=''; if(/Showtime disabled/i.test(e.message)) msg='Suất chiếu đã bị tắt hoặc sắp diễn ra (<10 phút), không thể thanh toán'; else if(/RATE_LIMIT/i.test(e.message)) msg='Bạn thao tác quá nhanh, vui lòng thử lại sau'; else if(/SEAT_ALREADY_HELD/i.test(e.message)) msg='Ghế đang được giữ, hãy chọn ghế khác'; else if(/SEAT_ALREADY_BOOKED/i.test(e.message)) msg='Ghế đã được đặt, hãy chọn ghế khác'; else if(/showtimeId and seats required/i.test(e.message)) msg='Thiếu lựa chọn ghế'; toast(msg||e.message); if(/SEAT_ALREADY_HELD|SEAT_ALREADY_BOOKED|showtimeId and seats required/i.test(e.message)){ const mid = sel && sel.movie && sel.movie.id ? sel.movie.id : null; const back = `/site/seats.html?showtimeId=${encodeURIComponent(showtimeId)}${mid?`&movieId=${encodeURIComponent(mid)}`:''}`; setTimeout(()=>{ location.href = back; }, 600); } if(payBtn){ payBtn.disabled = false; payBtn.textContent = prevText || 'Thanh toán & đặt vé'; } }); }
+    document.getElementById('pay').onclick = go; loadQuote(); startPayCountdown(); injectBottomNav();
+  </script>
+</body>
+</html>

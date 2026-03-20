@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trang chủ - Movie Booking VIP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/site/common.css" />
+  <style>
+    /* VIP Premium Theme Overrides */
+    :root {
+      --bg-dark: #020617; /* Slate 950/Black */
+      --bg-panel: #0f172a;
+      --primary: #f97316; /* Orange */
+      --primary-gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      --accent: #fb923c;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --glass: rgba(15, 23, 42, 0.65);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      font-family: 'Outfit', sans-serif;
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    /* Cinematic Header */
+    header {
+      background: rgba(2, 6, 23, 0.85) !important;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--glass-border);
+      height: 80px;
+    }
+    .brand { 
+      font-family: 'Playfair Display', serif; 
+      font-size: 24px; 
+      letter-spacing: 0.5px;
+      color: #fff;
+    }
+    .brand .logo { 
+      background: var(--primary-gradient); 
+      box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
+    }
+
+    /* Enhanced Searchbar */
+    .searchbar {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 99px;
+      padding: 0 20px;
+      height: 44px;
+      transition: all 0.3s ease;
+    }
+    .searchbar:focus-within {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
+    }
+    .searchbar input { font-family: 'Outfit', sans-serif; }
+
+    /* Hero Section - VIP Style */
+    .hero-wrapper {
+      position: relative;
+      height: 90vh;
+      min-height: 650px;
+      width: 100%;
+      overflow: hidden;
+      margin-top: -80px;
+    }
+    .hero-slide {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center top;
+      opacity: 0;
+      transform: scale(1.1);
+      transition: opacity 1.2s ease-in-out, transform 8s ease-out;
+      z-index: 1;
+    }
+    .hero-slide.active { 
+      opacity: 1; 
+      z-index: 2; 
+      transform: scale(1);
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, transparent 0%, #020617 120%),
+                  linear-gradient(to top, #020617 10%, transparent 50%),
+                  linear-gradient(to right, #020617 0%, rgba(2,6,23,0.5) 40%, transparent 100%);
+      z-index: 3;
+    }
+    
+    .hero-content {
+      position: absolute;
+      bottom: 15%;
+      left: 6%;
+      z-index: 4;
+      max-width: 700px;
+    }
+
+    /* Animations */
+    @keyframes slideUpFade {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .hero-tag {
+      display: inline-block;
+      padding: 8px 20px;
+      background: rgba(249, 115, 22, 0.1);
+      border: 1px solid rgba(249, 115, 22, 0.5);
+      color: var(--primary);
+      border-radius: 99px; /* Pill shape for smoother look */
+      font-family: 'Playfair Display', serif; /* VIP Serif Font */
+      font-size: 14px;
+      font-weight: 700; /* Bold */
+      font-style: italic; /* Italic for elegance */
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: slideUpFade 0.8s var(--ease-out) forwards;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 0 15px rgba(249, 115, 22, 0.2); /* Glow */
+    }
+    
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 64px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      color: #fff;
+      opacity: 0;
+      animation: slideUpFade 0.8s var(--ease-out) 0.2s forwards;
+      text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    
+    .hero-meta {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: slideUpFade 0.8s var(--ease-out) 0.3s forwards;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .meta-item { display: flex; align-items: center; gap: 6px; }
+    .meta-item i { color: var(--primary); }
+
+    .hero-desc {
+      font-size: 18px;
+      color: #cbd5e1;
+      margin-bottom: 32px;
+      line-height: 1.6;
+      max-width: 600px;
+      opacity: 0;
+      animation: slideUpFade 0.8s var(--ease-out) 0.4s forwards;
+      font-weight: 300;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 20px;
+      opacity: 0;
+      animation: slideUpFade 0.8s var(--ease-out) 0.6s forwards;
+    }
+    .hero-actions .btn-vip{
+      min-width: 190px;
+    }
+
+    /* Buttons */
+    .btn-vip {
+      position: relative;
+      padding: 14px 40px;
+      border-radius: 99px; /* Pill shape */
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      letter-spacing: 0.5px;
+      overflow: hidden;
+      border: none;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      white-space: nowrap;
+      height: 48px;
+    }
+    .btn-vip::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 0%; height: 100%;
+      background: rgba(255,255,255,0.2);
+      transition: width 0.3s;
+      z-index: -1;
+      transform: skewX(-20deg);
+    }
+    .btn-vip:hover::before { width: 150%; }
+    
+    .btn-primary {
+      background: var(--primary-gradient);
+      color: #000;
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+      transform: scale(1.05);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      backdrop-filter: blur(4px);
+    }
+    .btn-outline:hover {
+      border-color: #fff;
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* Section Styles */
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      color: #fff;
+      position: relative;
+      padding-left: 20px;
+    }
+    .section-title::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 8px; bottom: 8px;
+      width: 4px;
+      background: var(--primary);
+      box-shadow: 0 0 10px var(--primary);
+    }
+    .section-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .section-link:hover { color: #fff; }
+
+    /* VIP Movie Card */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 30px;
+    }
+    .movie-card {
+      background: #0f172a;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      transition: all 0.4s var(--ease-out);
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.05);
+      group: card;
+    }
+    .movie-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      border-color: rgba(249, 115, 22, 0.3);
+      z-index: 10;
+    }
+    .poster-box {
+      position: relative;
+      aspect-ratio: 2/3;
+      overflow: hidden;
+    }
+    .poster-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .movie-card:hover .poster-img {
+      transform: scale(1.1);
+    }
+    .card-actions {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(2px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+      gap: 12px;
+    }
+    .movie-card:hover .card-actions { opacity: 1; }
+    
+    .btn-card {
+      padding: 10px 24px;
+      border-radius: 99px;
+      font-weight: 600;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      transform: translateY(20px);
+      transition: transform 0.3s, background 0.2s;
+    }
+    .movie-card:hover .btn-card { transform: translateY(0); }
+    
+    .btn-book { background: var(--primary-gradient); color: #000; }
+    .btn-book:hover { filter: brightness(1.1); }
+    
+    .info-box {
+      padding: 16px;
+      background: linear-gradient(to bottom, #0f172a, #020617);
+    }
+    .movie-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+    .movie-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .rating-badge {
+      color: var(--primary);
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Footer VIP */
+    .footer { 
+      margin-top: 80px;
+      background: #050b14; 
+      border-top: 1px solid rgba(255,255,255,0.05); 
+      padding-top: 80px;
+      padding-bottom: 40px;
+      position: relative;
+    }
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+      opacity: 0.5;
+    }
+    .footer .cols {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .footer h4 { 
+      font-family: 'Playfair Display', serif; 
+      color: #fff; 
+      font-size: 20px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .footer h4::after {
+      content: ''; display: block; width: 40px; height: 2px;
+      background: var(--primary); margin-top: 8px;
+    }
+    .footer ul { list-style: none; padding: 0; }
+    .footer ul li { margin-bottom: 12px; }
+    .footer ul li a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.3s;
+      display: inline-block;
+    }
+    .footer ul li a:hover {
+      color: var(--primary);
+      transform: translateX(5px);
+    }
+    .footer .socials { display: flex; gap: 12px; margin-top: 20px; }
+    .footer .icon {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      text-decoration: none;
+      transition: all 0.3s;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .footer .icon:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(249, 115, 22, 0.4);
+    }
+    .footer .divider { opacity: 0.1; }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #020617; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand" onclick="location.href='/site/home.html'"><div class="logo">M</div> Movie Booking</div>
+    <div class="nav">
+      <div class="searchbar">
+        <span class="icon" style="color: #94a3b8">🔍</span>
+        <input id="search" placeholder="Tìm kiếm phim..." />
+        <button id="btnSearch" class="primary" style="display:none">Go</button>
+      </div>
+      <div id="userArea"></div>
+    </div>
+  </header>
+
+  <div id="app"></div>
+
+  <footer class="footer">
+    <div class="inner">
+      <div class="cols">
+        <div>
+          <h4>Về chúng tôi</h4>
+          <ul>
+            <li><a href="#">Giới thiệu</a></li>
+            <li><a href="#">Liên hệ</a></li>
+            <li><a href="#">Tuyển dụng</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Điều khoản</h4>
+          <ul>
+            <li><a href="#">Quy định chung</a></li>
+            <li><a href="#">Chính sách bảo mật</a></li>
+            <li><a href="#">Điều khoản giao dịch</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Kết nối</h4>
+          <div class="socials">
+            <a class="icon" href="#">F</a>
+            <a class="icon" href="#">I</a>
+            <a class="icon" href="#">Y</a>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div style="text-align: center; color: #64748b; font-size: 14px; margin-top: 20px;">
+        &copy; 2025 Movie Booking VIP. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="/site/common.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script>
+    const { useState, useEffect, useRef } = React;
+
+    // Helper: Format Date
+    function fmtDate(d){
+       try { return new Date(d).toLocaleDateString('vi-VN'); } catch{ return ''; }
+    }
+
+    // Reuse common helpers
+    function openTrailer(tmdbId){
+      const ov = document.createElement('div'); ov.className='overlay'; ov.style.display='flex';
+      const modal = document.createElement('div'); modal.className='modal';
+      const iframe = document.createElement('iframe'); iframe.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'; iframe.allowFullscreen=true;
+      const actions = document.createElement('div'); actions.className='actions'; actions.style.marginTop='10px';
+      const btnClose = document.createElement('button'); btnClose.textContent='Đóng'; btnClose.onclick=()=>{ ov.remove(); };
+      actions.appendChild(btnClose); modal.appendChild(actions); ov.appendChild(modal); document.body.appendChild(ov);
+      
+      fetchJson(API.publicVideos(tmdbId)).then(v=>{ 
+        const key = (v&&v.key)|| (Array.isArray(v?.keys)&&v.keys[0]) || null; 
+        if(key){ 
+          iframe.src = `https://www.youtube.com/embed/${key}?rel=0&modestbranding=1&autoplay=1`; 
+          modal.insertBefore(iframe, actions); 
+        } else { 
+          const msg=document.createElement('div'); msg.className='muted'; msg.textContent='Không có trailer'; modal.insertBefore(msg, actions);
+        } 
+      }).catch(()=>{ 
+        const msg=document.createElement('div'); msg.className='muted'; msg.textContent='Không có trailer'; modal.insertBefore(msg, actions); 
+      });
+    }
+
+    function posterSrc(m, size='w500'){
+      if(!m) return '';
+      if(m.backdrop_path && size==='original'){
+         const p = String(m.backdrop_path).startsWith('/') ? m.backdrop_path : '/' + m.backdrop_path;
+         return `/api/movies/public/img?path=${encodeURIComponent(p)}&size=original`;
+      }
+      if(m.poster_path){ 
+        const p = String(m.poster_path).startsWith('/') ? m.poster_path : '/' + m.poster_path; 
+        return `/api/movies/public/img?path=${encodeURIComponent(p)}&size=${size}`; 
+      }
+      if(m.posterUrl) return m.posterUrl;
+      return '';
+    }
+
+    // --- Components ---
+
+    function HeroSlider({ list }) {
+      const [idx, setIdx] = useState(0);
+      const items = (list||[]).slice(0, 5);
+
+      useEffect(() => {
+        if(!items.length) return;
+        const interval = setInterval(() => {
+          setIdx(prev => (prev + 1) % items.length);
+        }, 7000); // 7s slide
+        return () => clearInterval(interval);
+      }, [items.length]);
+
+      if (!items.length) return null;
+
+      const current = items[idx];
+      // Try to find high-res backdrop
+      const bg = posterSrc(current, 'original') || posterSrc(current, 'w1280');
+      
+      return React.createElement('div', { className: 'hero-wrapper' },
+        items.map((item, i) => {
+          const itemBg = posterSrc(item, 'original') || posterSrc(item, 'w1280');
+          return React.createElement('div', { 
+            key: i,
+            className: `hero-slide ${i === idx ? 'active' : ''}`,
+            style: { backgroundImage: `url(${itemBg})` }
+          });
+        }),
+        React.createElement('div', { className: 'hero-overlay' }),
+        
+        // Render content only for active to trigger animation
+        React.createElement('div', { className: 'hero-content', key: idx }, 
+          React.createElement('div', { className: 'hero-tag' }, 'Phim Đề Cử'),
+          React.createElement('div', { className: 'hero-title' }, current.title || current.titleVi),
+          React.createElement('div', { className: 'hero-meta' },
+            React.createElement('div', { className: 'meta-item' }, 
+              React.createElement('span', null, '★'),
+              React.createElement('span', null, current.vote_average ? current.vote_average.toFixed(1) : '8.5')
+            ),
+            React.createElement('div', { className: 'meta-item' }, 
+              React.createElement('span', null, '📅'),
+              React.createElement('span', null, current.release_date ? current.release_date.substring(0,4) : '2025')
+            )
+          ),
+          React.createElement('div', { className: 'hero-desc' }, current.overview || current.description || 'Trải nghiệm điện ảnh đỉnh cao với chất lượng âm thanh và hình ảnh tuyệt vời nhất.'),
+          React.createElement('div', { className: 'hero-actions' },
+            React.createElement('button', { 
+              className: 'btn-vip btn-primary',
+              onClick: () => location.href=`/site/detail.html?movieId=${current.tmdbId||current.id}`
+            }, 'Đặt Vé Ngay'),
+            React.createElement('button', { 
+              className: 'btn-vip btn-outline',
+              onClick: () => openTrailer(current.tmdbId||current.id)
+            }, 'Xem Trailer')
+          )
+        )
+      );
+    }
+
+    function MovieCard({ m }) {
+      const tmdbId = m.tmdbId || m.id;
+      const src = posterSrc(m);
+      const title = m.title || m.titleVi || 'Unknown';
+      
+      return React.createElement('div', { className: 'movie-card', onClick: () => location.href=`/site/detail.html?movieId=${tmdbId}` },
+        React.createElement('div', { className: 'poster-box' },
+          src ? React.createElement('img', { src: src, className: 'poster-img', loading: 'lazy' }) : null,
+          React.createElement('div', { className: 'card-actions' },
+            React.createElement('button', { className: 'btn-card btn-book' }, 'ĐẶT VÉ'),
+            React.createElement('button', { className: 'btn-card btn-outline', onClick: (e) => { e.stopPropagation(); openTrailer(tmdbId); } }, 'TRAILER')
+          )
+        ),
+        React.createElement('div', { className: 'info-box' },
+          React.createElement('div', { className: 'movie-title', title: title }, title),
+          React.createElement('div', { className: 'movie-meta' },
+            React.createElement('span', null, m.release_date ? m.release_date.substring(0,4) : '2025'),
+            React.createElement('div', { className: 'rating-badge' },
+              React.createElement('span', null, '★'),
+              React.createElement('span', null, m.vote_average ? m.vote_average.toFixed(1) : 'N/A')
+            )
+          )
+        )
+      );
+    }
+
+    function MoviesSection({ title, list, filter }) {
+      const arr = (list||[]).filter(m => !filter || String(m.title||'').toLowerCase().includes(filter));
+      if(!arr.length) return null;
+
+      return React.createElement('div', { className: 'section container', style: { maxWidth: 1200, marginTop: 60 } },
+        React.createElement('div', { className: 'section-header' },
+          React.createElement('div', { className: 'section-title' }, title),
+          React.createElement('a', { href: '#', className: 'section-link' }, 'Xem Tất Cả >')
+        ),
+        React.createElement('div', { className: 'grid' },
+          arr.map((m, i) => React.createElement(MovieCard, { key: m.id || i, m }))
+        )
+      );
+    }
+
+    function HomeApp() {
+      const [nowList, setNow] = useState([]);
+      const [upList, setUp] = useState([]);
+      const [query, setQuery] = useState('');
+
+      useEffect(() => {
+        const load = async () => {
+          try {
+            const nowObj = await fetchJson(API.tmdbNowPlaying(1, 'vi-VN')).catch(() => ({ results: [] }));
+            const upObj = await fetchJson(API.tmdbUpcoming(1, 'vi-VN')).catch(() => ({ results: [] }));
+
+            setNow(Array.isArray(nowObj?.results) ? nowObj.results : []);
+            setUp(Array.isArray(upObj?.results) ? upObj.results : []);
+
+          } catch (e) { console.error(e); }
+        };
+        load();
+        renderUser();
+
+        // Search listener
+        const btn = document.getElementById('btnSearch');
+        const input = document.getElementById('search');
+        const doSearch = () => setQuery((input?.value || '').trim().toLowerCase());
+        if(btn) btn.onclick = doSearch;
+        if(input) input.onkeyup = (e) => { if(e.key==='Enter') doSearch(); };
+
+      }, []);
+
+      const heroMovies = nowList.length > 0 ? nowList : upList;
+
+      return React.createElement(React.Fragment, null,
+        React.createElement(HeroSlider, { list: heroMovies }),
+        React.createElement(MoviesSection, { title: 'Phim Đang Chiếu', list: nowList, filter: query }),
+        React.createElement(MoviesSection, { title: 'Phim Sắp Chiếu', list: upList, filter: query }),
+        React.createElement('div', { style: { height: 100 } })
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('app'));
+    root.render(React.createElement(HomeApp));
+  </script>
+</body>
+</html>
