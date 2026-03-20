@@ -9,6 +9,17 @@
 A professional, full-stack Movie Booking System built with **Spring Boot 3** and **Java 17**. This project provides a robust RESTful API for managing movie schedules, seat availability in real-time, user bookings, and a comprehensive admin dashboard.
 
 ---
+## 🖼️ Screenshots
+<img width="1912" height="856" alt="Screenshot 2026-03-20 180540" src="https://github.com/user-attachments/assets/91f7ce0e-dd29-4142-ac82-2e990b398212" />
+<img width="1910" height="899" alt="Screenshot 2026-03-20 180631" src="https://github.com/user-attachments/assets/849f883c-ccc5-4360-9ea2-a01e27bedcc9" />
+<img width="1896" height="888" alt="Screenshot 2026-03-20 180721" src="https://github.com/user-attachments/assets/44dde690-e2fc-42a5-9ff6-fd380f812a46" />
+<img width="1902" height="802" alt="Screenshot 2026-03-20 180742" src="https://github.com/user-attachments/assets/cf09f909-2e9f-40a0-bf65-bb9f7072d9f6" />
+<img width="1917" height="905" alt="Screenshot 2025-12-18 235158" src="https://github.com/user-attachments/assets/a6b6471e-9d79-40dc-9b4a-fe0d3f457331" />
+<img width="1903" height="901" alt="Screenshot 2025-12-18 235237" src="https://github.com/user-attachments/assets/ca37850c-4191-433e-8e96-9c4b63951916" />
+<img width="1916" height="903" alt="Screenshot 2025-12-18 235302" src="https://github.com/user-attachments/assets/df4de474-dd05-4c4f-af5c-72d855dcffe9" />
+<img width="1912" height="905" alt="Screenshot 2025-12-18 235416" src="https://github.com/user-attachments/assets/c9e73e1f-40b2-43ed-87f4-8749b792db78" />
+<img width="1912" height="905" alt="Screenshot 2025-12-18 235416" src="https://github.com/user-attachments/assets/0e87dbb9-90e4-464b-8128-38309cff31cc" />
+<img width="1897" height="904" alt="Screenshot 2025-12-18 235354" src="https://github.com/user-attachments/assets/ccf871df-4e4c-4600-ad25-b0e664760e0d" />
 
 ## 🚀 Công Nghệ Sử Dụng (Tech Stack)
 
