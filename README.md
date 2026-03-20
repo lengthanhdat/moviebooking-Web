@@ -20,6 +20,8 @@ A professional, full-stack Movie Booking System built with **Spring Boot 3** and
 <img width="1912" height="905" alt="Screenshot 2025-12-18 235416" src="https://github.com/user-attachments/assets/c9e73e1f-40b2-43ed-87f4-8749b792db78" />
 <img width="1912" height="905" alt="Screenshot 2025-12-18 235416" src="https://github.com/user-attachments/assets/0e87dbb9-90e4-464b-8128-38309cff31cc" />
 <img width="1897" height="904" alt="Screenshot 2025-12-18 235354" src="https://github.com/user-attachments/assets/ccf871df-4e4c-4600-ad25-b0e664760e0d" />
+<img width="1908" height="907" alt="Screenshot 2025-12-19 141641" src="https://github.com/user-attachments/assets/8023eec4-ac5c-47f2-86f6-e6b08fbde11f" />
+<img width="1908" height="907" alt="Screenshot 2025-12-19 141641" src="https://github.com/user-attachments/assets/57c6b54c-91ae-45f0-9bbb-99baf9dd6677" />
 
 ## 🚀 Công Nghệ Sử Dụng (Tech Stack)
 
